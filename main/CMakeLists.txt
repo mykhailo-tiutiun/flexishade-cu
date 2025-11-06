@@ -1,0 +1,19 @@
+idf_component_register(
+    SRCS 
+        "main.cpp"
+        "domain/Relay.cpp"
+        "StateLed.cpp"
+        "ConfigButton.cpp"
+        "GpioButton.cpp"
+        "application/AppContext.cpp"
+        "application/AppState.cpp"
+        "application/InitState.cpp"
+        "application/ZigbeeInitState.cpp"
+        "application/AppStateFactory.cpp"
+        "application/NormalState.cpp"
+        "application/ConfigState.cpp"
+    PRIV_REQUIRES 
+        spi_flash
+        driver
+    INCLUDE_DIRS ""
+)

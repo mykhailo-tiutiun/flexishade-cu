@@ -1,0 +1,8 @@
+build/
+managed_components/
+
+.cache/
+.devcontainer/
+dependencies.lock
+
+.vscode/
