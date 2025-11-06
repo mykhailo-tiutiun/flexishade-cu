@@ -3,8 +3,13 @@
 
 #include "AppState.hpp"
 
+class SoftAp;
+
 class ConfigState: public AppState {
+    private:
+        SoftAp *soft_ap_;
     public:
+        ConfigState();
         void onEnter() override;
         void onExit() override;
 

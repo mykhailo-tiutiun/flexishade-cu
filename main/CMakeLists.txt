@@ -12,8 +12,11 @@ idf_component_register(
         "application/AppStateFactory.cpp"
         "application/NormalState.cpp"
         "application/ConfigState.cpp"
+        "wifi/SoftAp.cpp"
     PRIV_REQUIRES 
         spi_flash
+        nvs_flash
         driver
+        esp_wifi
     INCLUDE_DIRS ""
 )
