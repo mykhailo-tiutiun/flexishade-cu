@@ -10,11 +10,13 @@ void AppContext::run_app() {
 }
 
 void AppContext::transit_state(AppState* state) {
-    printf("Context: Transition to %s\n", state->getName());
     if (state_ != nullptr) {
         state_->onExit();
         delete state_;
     }
+
+    printf("Context: Transition to %s\n", state->getName());
+
     state_ = state;
     state_->setContext(this);
     state_->onEnter();

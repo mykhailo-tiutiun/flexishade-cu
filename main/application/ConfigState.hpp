@@ -2,12 +2,16 @@
 #define CONFIG_STATE_HPP
 
 #include "AppState.hpp"
+#include "../net/wifi/WifiAp.hpp"
+#include "../http/HttpServer.hpp"
 
-class SoftAp;
+typedef struct dns_server_handle *dns_server_handle_t;
 
 class ConfigState: public AppState {
     private:
-        SoftAp *soft_ap_;
+        WifiAp *wifi_ap_;
+        HttpServer *http_server_;
+        dns_server_handle_t dns_server_;
     public:
         ConfigState();
         void onEnter() override;

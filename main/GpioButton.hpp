@@ -1,16 +1,18 @@
 #ifndef GPIO_BUTTON_HPP
 #define GPIO_BUTTON_HPP
 
+#include "freertos/FreeRTOS.h"
+
 class GpioButton {
     private:
-        static void buttonCallback(void *arg, void *usr_data) {
-            GpioButton *self = (GpioButton *)usr_data;
-            self->handleClick();
-        }
+        TaskHandle_t button_task_;
+
+        static void buttonISRCallback(void *arg, void *usr_data);
+        static void buttonTaskHandler(void *arg);
     public:
         GpioButton(int gpio_num);
     protected:
-        virtual void handleClick();
+        virtual void handleClick() {}
 };
 
 #endif

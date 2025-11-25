@@ -12,11 +12,20 @@ idf_component_register(
         "application/AppStateFactory.cpp"
         "application/NormalState.cpp"
         "application/ConfigState.cpp"
-        "wifi/SoftAp.cpp"
+        "net/wifi/WifiAp.cpp"
+        "net/wifi/WifiSta.cpp"
+        "net/dns_server.c"
+        "http/HttpServer.cpp"
+        "mqtt/MqttClient.cpp"
     PRIV_REQUIRES 
         spi_flash
         nvs_flash
         driver
         esp_wifi
+        esp_http_server
+        esp_event
+        esp-tls
+        lwip
+        mqtt
     INCLUDE_DIRS ""
 )
