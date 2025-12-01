@@ -5,31 +5,28 @@
 #include "../mqtt/MqttClient.hpp"
 
 void NormalState::onEnter() {
-    
+
     wifi_sta_ = new WifiSta();
     wifi_sta_->start();
 
-    mqtt_ = new MqttClient();
+    if (auto mqtt = context_->tryGetComponent<MqttClient>()){
+        mqtt.value()->start();
+    }
 
-    context_->getStateLed()->green();
+    context_->tryGetComponent<StateLed>().value()->green();
 }
 
 void NormalState::onExit() {
+    context_->tryGetComponent<StateLed>().value()->amber();
+
+    if (auto mqtt = context_->tryGetComponent<MqttClient>()){
+        mqtt.value()->stop();
+    }
+
     wifi_sta_->stop();
-
-    delete mqtt_;
-    mqtt_ = nullptr;
-
-    context_->getStateLed()->amber();
-
-    vTaskDelay(pdMS_TO_TICKS(500)); 
 }
 
 void NormalState::toogleConfigMode() {
-    AppState* next_state = context_->getAppStateFactory()->config();
-    context_->transit_state(next_state);
+    context_->transit_state(CONFIG);
 }
 
-const char* NormalState::getName() const {
-    return "Normal";
-}

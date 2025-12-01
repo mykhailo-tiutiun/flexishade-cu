@@ -13,7 +13,7 @@ void ConfigState::onEnter() {
     http_server_ = new HttpServer();
     dns_server_ = start_capture_portal_dns_server();
 
-    context_->getStateLed()->blue();
+    context_->tryGetComponent<StateLed>().value()->blue();
 }
 
 void ConfigState::onExit() {
@@ -25,16 +25,10 @@ void ConfigState::onExit() {
     delete wifi_ap_;
     wifi_ap_ = nullptr;
 
-    context_->getStateLed()->amber();
-
-    vTaskDelay(pdMS_TO_TICKS(500)); 
+    context_->tryGetComponent<StateLed>().value()->amber();
 }
 
 void ConfigState::toogleConfigMode() {
-    AppState* next_state = context_->getAppStateFactory()->normal();
-    context_->transit_state(next_state);
+    context_->transit_state(NORMAL);
 }
 
-const char* ConfigState::getName() const {
-    return "Config";
-}

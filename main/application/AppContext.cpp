@@ -1,41 +1,55 @@
 #include "AppContext.hpp"
 #include "AppState.hpp"
 #include <cstdio>
+#include "ConfigState.hpp"
 #include "InitState.hpp"
+#include "NormalState.hpp"
+#include "ZigbeeInitState.hpp"
+#include "esp_log.h"
 
-AppContext::AppContext() : state_(nullptr) {};
+static const char* TAG = "app context";
+
+AppContext::AppContext() : state_(nullptr)
+{
+    addState(new InitState());
+    addState(new ZigbeeInitState());
+    addState(new NormalState());
+    addState(new ConfigState());
+};
 
 void AppContext::run_app() {
-    transit_state(new InitState());
+    transit_state(INIT);
 }
 
-void AppContext::transit_state(AppState* state) {
+void AppContext::transit_state(AppStateType type) {
+    auto state = getState(type);
+    ESP_LOGI(TAG, "Transition to %s\n", state->getName());
+
     if (state_ != nullptr) {
         state_->onExit();
-        delete state_;
     }
-
-    printf("Context: Transition to %s\n", state->getName());
 
     state_ = state;
     state_->setContext(this);
     state_->onEnter();
+
+    ESP_LOGI(TAG, "Exited on enter %s\n", state->getName());
 }
 
-AppState* AppContext::getState() const {
+AppState* AppContext::getCurrentState() const {
     return state_;
 }
 
-void AppContext::setStateLed(StateLed *led) {
-    state_led_ = led;
-}
-StateLed* AppContext::getStateLed() const {
-    return state_led_;
+AppState* AppContext::getState(AppStateType type)
+{
+    auto it = states_.find(type);
+    if (it != states_.end()) {
+        return it->second;
+    }
+    return nullptr;
 }
 
-void AppContext::setAppStateFactory(AppStateFactory *factory) {
-    state_factory_ = factory;
-}
-AppStateFactory* AppContext::getAppStateFactory() {
-    return state_factory_;
+void AppContext::addState(AppState* state)
+{
+    states_[state->getType()] = state;
 }

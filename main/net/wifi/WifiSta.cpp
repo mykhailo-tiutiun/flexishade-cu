@@ -95,6 +95,7 @@ void WifiSta::start()
     is_up_ = true;
 
     ESP_LOGI(TAG, "wifi sta started.");
+    vTaskDelay(pdMS_TO_TICKS(1000));
 }
 
 void WifiSta::stop()

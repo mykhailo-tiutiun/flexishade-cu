@@ -3,11 +3,10 @@
 #include "AppContext.hpp"
 
 void ZigbeeInitState::onEnter() {
-    
-    context_->getStateLed()->amber();
 
-    AppState* next_state = context_->getAppStateFactory()->normal();
-    context_->transit_state(next_state);
+    context_->tryGetComponent<StateLed>().value()->amber();
+
+    context_->transit_state(NORMAL);
 }
 
 void ZigbeeInitState::onExit() {
@@ -18,6 +17,4 @@ void ZigbeeInitState::toogleConfigMode() {
 
 }
 
-const char* ZigbeeInitState::getName() const {
-    return "ZigbeeInit";
-}
+

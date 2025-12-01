@@ -3,8 +3,15 @@
 
 class AppContext;
 
+enum AppStateType {
+    INIT,
+    ZIGBEE_INIT,
+    NORMAL,
+    CONFIG
+};
+
 class AppState {
-    protected: 
+    protected:
         AppContext *context_;
     public:
         virtual ~AppState() = default;
@@ -16,6 +23,7 @@ class AppState {
 
         virtual void toogleConfigMode() = 0;
         virtual const char* getName() const = 0;
+        virtual AppStateType getType() const = 0;
 };
 
 #endif

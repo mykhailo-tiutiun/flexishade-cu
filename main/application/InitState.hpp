@@ -10,7 +10,15 @@ class InitState: public AppState {
 
         void toogleConfigMode() override;
 
-        const char* getName() const override;
+        const char* getName() const override
+        {
+            return "Init";
+        }
+
+        AppStateType getType() const override
+        {
+            return INIT;
+        }
 };
 
 #endif

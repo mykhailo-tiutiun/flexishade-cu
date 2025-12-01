@@ -1,8 +1,12 @@
 #include "Relay.hpp"
 #include "driver/gpio.h"
+#include <cstdio>
+#include <optional>
+#include <string>
 
-Relay::Relay(int gpio_num)
-    : gpio_num_(gpio_num_t(gpio_num)),
+Relay::Relay(LocalId local_id, int gpio_num)
+    : local_id_(local_id),
+    gpio_num_((gpio_num_t)gpio_num),
     is_open_(false)
 {
     gpio_config_t io_conf = {};
@@ -16,17 +20,22 @@ Relay::Relay(int gpio_num)
     gpio_set_level(gpio_num_, 0);
 }
 
-void Relay::open() {
+void Relay::open()
+{
     is_open_ = true;
+    printf("relay is on\n");
     gpio_set_level(gpio_num_, 1);
 }
 
-void Relay::close() {
+void Relay::close()
+{
     is_open_ = false;
+    printf("relay is off\n");
     gpio_set_level(gpio_num_, 0);
 }
 
-void Relay::toggle() {
+void Relay::toggle()
+{
     if (is_open_) {
         close();
     } else {
@@ -34,6 +43,22 @@ void Relay::toggle() {
     }
 }
 
-bool Relay::is_open() {
+const LocalId& Relay::getLocalId() const
+{
+    return local_id_;
+}
+
+const std::optional<GlobalId>& Relay::getGlobalId() const
+{
+    return global_id_;
+}
+
+bool Relay::isOpen() const
+{
     return is_open_;
+}
+
+void Relay::setGlobalId(GlobalId&& global_id)
+{
+    global_id_ = std::move(global_id);
 }

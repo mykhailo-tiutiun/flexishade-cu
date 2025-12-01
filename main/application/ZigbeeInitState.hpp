@@ -10,7 +10,15 @@ class ZigbeeInitState: public AppState {
 
         void toogleConfigMode() override;
 
-        const char* getName() const override;
+        const char* getName() const override
+        {
+            return "ZigbeeInit";
+        }
+
+        AppStateType getType() const override
+        {
+            return ZIGBEE_INIT;
+        }
 };
 
 #endif

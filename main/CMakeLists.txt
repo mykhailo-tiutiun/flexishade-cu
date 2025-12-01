@@ -1,7 +1,9 @@
 idf_component_register(
-    SRCS 
+    SRCS
         "main.cpp"
-        "domain/Relay.cpp"
+        "domain/model/Relay.cpp"
+        "domain/service/RelayService.cpp"
+        "db/RelayDb.cpp"
         "StateLed.cpp"
         "ConfigButton.cpp"
         "GpioButton.cpp"
@@ -9,7 +11,6 @@ idf_component_register(
         "application/AppState.cpp"
         "application/InitState.cpp"
         "application/ZigbeeInitState.cpp"
-        "application/AppStateFactory.cpp"
         "application/NormalState.cpp"
         "application/ConfigState.cpp"
         "net/wifi/WifiAp.cpp"
@@ -17,7 +18,8 @@ idf_component_register(
         "net/dns_server.c"
         "http/HttpServer.cpp"
         "mqtt/MqttClient.cpp"
-    PRIV_REQUIRES 
+        "mqtt/MqttRelayController.cpp"
+    PRIV_REQUIRES
         spi_flash
         nvs_flash
         driver
@@ -27,5 +29,6 @@ idf_component_register(
         esp-tls
         lwip
         mqtt
+        json
     INCLUDE_DIRS ""
 )

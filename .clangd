@@ -1,2 +1,9 @@
 CompileFlags:
-    Remove: [-f*, -m*]
+  Add:
+    - -I/usr/lib/gcc/x86_64-pc-linux-gnu/14/include/g++-v14
+    - -I/usr/lib/gcc/x86_64-pc-linux-gnu/14/include/g++-v14/x86_64-pc-linux-gnu
+    - -I/usr/lib/gcc/x86_64-pc-linux-gnu/14/include/g++-v14/backward
+    - -I/usr/lib/gcc/x86_64-pc-linux-gnu/14/include
+    - -I/usr/include
+    - -std=c++17
+  Remove: [-f*, -m*]

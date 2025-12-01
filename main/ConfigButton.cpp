@@ -7,7 +7,7 @@ ConfigButton::ConfigButton(int gpio_num) : GpioButton(gpio_num), context_(nullpt
 
 void ConfigButton::handleClick(){
     if (context_ != nullptr){
-        context_->getState()->toogleConfigMode();
+        context_->getCurrentState()->toogleConfigMode();
     }
 }
 
