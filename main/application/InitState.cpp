@@ -12,6 +12,7 @@
 #include "../db/RelayDb.hpp"
 #include "../mqtt/MqttClient.hpp"
 #include "../mqtt/MqttRelayController.hpp"
+#include "../mqtt/MqttRelayPublisher.hpp"
 
 
 void InitState::onEnter() {
@@ -32,15 +33,20 @@ void InitState::onEnter() {
     ESP_ERROR_CHECK(esp_netif_init());
     ESP_ERROR_CHECK(esp_event_loop_create_default());
 
+    context_->registerComponent(new MqttClient());
+
     RelayDb* relaydb = new RelayDb();
     relaydb->save(Relay(LocalId(1), 6));
     context_->registerComponent(relaydb);
 
-    RelayDb* rservice_db = context_->tryGetComponent<RelayDb>().value();
-    RelayService* rservice = new RelayService(rservice_db);
-    context_->registerComponent(rservice);
+    auto rpublisher_mqtt = context_->tryGetComponent<MqttClient>().value();
+    MqttRelayPublisher* rpublisher = new MqttRelayPublisher(rpublisher_mqtt);
+    context_->registerComponent(rpublisher);
 
-    context_->registerComponent(new MqttClient());
+    RelayDb* rservice_db = context_->tryGetComponent<RelayDb>().value();
+    MqttRelayPublisher* rservice_publisher = context_->tryGetComponent<MqttRelayPublisher>().value();
+    RelayService* rservice = new RelayService(rservice_db, rservice_publisher);
+    context_->registerComponent(rservice);
 
     auto rcontroller_mqtt = context_->tryGetComponent<MqttClient>();
     auto rcontroller_service = context_->tryGetComponent<RelayService>();

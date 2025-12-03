@@ -19,6 +19,7 @@ idf_component_register(
         "http/HttpServer.cpp"
         "mqtt/MqttClient.cpp"
         "mqtt/MqttRelayController.cpp"
+        "mqtt/MqttRelayPublisher.cpp"
     PRIV_REQUIRES
         spi_flash
         nvs_flash

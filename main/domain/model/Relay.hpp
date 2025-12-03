@@ -8,7 +8,7 @@
 
 struct LocalId {
     int val;
-    
+
     LocalId() : val(0) {}
     explicit LocalId(int v) : val(v) {}
 
@@ -19,7 +19,7 @@ struct LocalId {
 
 struct GlobalId {
     std::string val;
-    
+
     GlobalId() = default;
     explicit GlobalId(std::string v) : val(std::move(v)) {}
 
@@ -46,6 +46,7 @@ class Relay {
         const LocalId& getLocalId() const;
         const std::optional<GlobalId>& getGlobalId() const;
 
+        bool hasGlobalId() const;
         bool isOpen() const;
 
         void setGlobalId(GlobalId&& global_id_);

@@ -3,24 +3,29 @@
 
 #include "../model/Relay.hpp"
 #include "../../db/RelayDb.hpp"
+#include "../../mqtt/MqttRelayPublisher.hpp"
+
 #include <string>
 #include <vector>
 
 class RelayService {
     public:
-        RelayService(RelayDb* relayDb);
+        RelayService(RelayDb* relayDb, MqttRelayPublisher* mqtt_publisher);
         ~RelayService();
 
-        void requestStateById(const RelayId& id);
+        std::vector<Relay> getAll() const;
+
+        void requestStateById(const RelayId& id) const;
 
         void openById(const RelayId& id);
         void closeById(const RelayId& id);
         void toggleById(const RelayId& id);
 
-        std::vector<Relay> getAll();
-
     private:
         RelayDb* relayDb_;
+        MqttRelayPublisher* mqtt_publisher_;
+
+        void publishState(const Relay& relay) const;
 };
 
 #endif

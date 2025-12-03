@@ -53,6 +53,11 @@ const std::optional<GlobalId>& Relay::getGlobalId() const
     return global_id_;
 }
 
+bool Relay::hasGlobalId() const
+{
+    return global_id_.has_value();
+}
+
 bool Relay::isOpen() const
 {
     return is_open_;

@@ -3,6 +3,7 @@
 
 #include "MqttSubscribtion.hpp"
 #include <map>
+#include <string>
 #include <utility>
 #define MQTT_CLIENT_BROKER_URL "mqtt://192.168.10.2"
 
@@ -19,6 +20,7 @@ class MqttClient {
         void start();
         void stop();
 
+        void publish(const std::string& topic, const std::string& data) const;
         void subscribe(MqttSubscribtion subscribtion);
 
         bool isUp() const;

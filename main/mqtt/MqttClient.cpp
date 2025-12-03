@@ -6,6 +6,9 @@
 #include "esp_log.h"
 #include <string>
 
+#define MQTT_CLIENT_PUBLISH_QOS 0
+#define MQTT_CLIENT_PUBLISH_RETAIN 0
+
 static const char* TAG = "mqtt_client";
 
 static void log_error_if_nonzero(const char *message, int error_code){
@@ -205,6 +208,11 @@ void MqttClient::stop()
 {
     esp_mqtt_client_stop(mqtt_client_);
     esp_mqtt_client_destroy(mqtt_client_);
+}
+
+void MqttClient::publish(const std::string& topic, const std::string& data) const
+{
+    esp_mqtt_client_publish(mqtt_client_, topic.data(), data.data(), data.length(), MQTT_CLIENT_PUBLISH_QOS, MQTT_CLIENT_PUBLISH_RETAIN);
 }
 
 void MqttClient::subscribe(MqttSubscribtion sub)
