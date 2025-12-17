@@ -1,0 +1,23 @@
+idf_component_register(
+    SRCS
+        "src/AppContext.cpp"
+        "src/AppState.cpp"
+        "src/InitState.cpp"
+        "src/ZigbeeInitState.cpp"
+        "src/NormalState.cpp"
+        "src/ConfigState.cpp"
+        "src/ConfigButton.cpp"
+    INCLUDE_DIRS
+        "include"
+    REQUIRES
+        spi_flash
+        nvs_flash
+        esp_event
+        esp-tls
+        lwip
+
+        io_cloud
+        io_config
+        relay
+        esp_event
+)

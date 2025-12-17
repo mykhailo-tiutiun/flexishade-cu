@@ -1,35 +1,7 @@
 idf_component_register(
     SRCS
         "main.cpp"
-        "domain/model/Relay.cpp"
-        "domain/service/RelayService.cpp"
-        "db/RelayDb.cpp"
-        "StateLed.cpp"
-        "ConfigButton.cpp"
-        "GpioButton.cpp"
-        "application/AppContext.cpp"
-        "application/AppState.cpp"
-        "application/InitState.cpp"
-        "application/ZigbeeInitState.cpp"
-        "application/NormalState.cpp"
-        "application/ConfigState.cpp"
-        "net/wifi/WifiAp.cpp"
-        "net/wifi/WifiSta.cpp"
-        "net/dns_server.c"
-        "http/HttpServer.cpp"
-        "mqtt/MqttClient.cpp"
-        "mqtt/MqttRelayController.cpp"
-        "mqtt/MqttRelayPublisher.cpp"
-    PRIV_REQUIRES
-        spi_flash
-        nvs_flash
-        driver
-        esp_wifi
-        esp_http_server
-        esp_event
-        esp-tls
-        lwip
-        mqtt
-        json
+    REQUIRES
+        app
     INCLUDE_DIRS ""
 )

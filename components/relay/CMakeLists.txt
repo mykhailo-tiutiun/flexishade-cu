@@ -1,0 +1,15 @@
+idf_component_register(
+    SRCS
+        "src/Relay.cpp"
+        "src/RelayDb.cpp"
+        "src/RelayService.cpp"
+        "src/MqttRelayController.cpp"
+        "src/MqttRelayPublisher.cpp"
+    INCLUDE_DIRS
+        "include"
+    REQUIRES
+        io_cloud
+        esp_event
+        json
+        driver
+)

@@ -1,0 +1,17 @@
+idf_component_register(
+    SRCS
+        "src/GpioButton.cpp"
+        "src/dns_server.c"
+        "src/HttpServer.cpp"
+        "src/StateLed.cpp"
+        "src/WifiAp.cpp"
+    INCLUDE_DIRS
+        "include"
+    REQUIRES
+        led_strip
+        esp_event
+        esp_wifi
+        driver
+        esp_http_server
+        button
+)

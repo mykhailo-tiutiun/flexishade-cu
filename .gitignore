@@ -4,6 +4,7 @@ managed_components/
 .cache/
 .devcontainer/
 dependencies.lock
+compile_commands.json
 sdkconfig.old
 .ssh/
 
