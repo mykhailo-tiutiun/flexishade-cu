@@ -1,7 +1,7 @@
 #include "app/ConfigState.hpp"
 
 #include "app/AppContext.hpp"
-#include "config/ConfigStorage.hpp"
+#include "config/ConfigService.hpp"
 #include "esp_log.h"
 #include "io/config/StateLed.hpp"
 #include "io/config/WifiAp.hpp"

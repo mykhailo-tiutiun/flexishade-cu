@@ -1,9 +1,9 @@
 idf_component_register(
     SRCS
-        "src/ConfigStorage.cpp"
+        "src/ConfigService.cpp"
         "src/WifiConfig.cpp"
         "src/MqttConfig.cpp"
-        "src/NvsConfigStorage.cpp"
+        "src/NvsConfigService.cpp"
     INCLUDE_DIRS
         "include"
     REQUIRES

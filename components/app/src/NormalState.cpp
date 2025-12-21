@@ -1,14 +1,14 @@
 #include "app/NormalState.hpp"
 
 #include "app/AppContext.hpp"
-#include "config/ConfigStorage.hpp"
+#include "config/ConfigService.hpp"
 #include "io/cloud/MqttClient.hpp"
 #include "io/config/StateLed.hpp"
 #include "io/cloud/WifiSta.hpp"
 
 void NormalState::onEnter()
 {
-    auto configs = context_->tryGetComponent<ConfigStorage>().value();
+    auto configs = context_->tryGetComponent<ConfigService>().value();
 
     wifi_sta_ = new WifiSta();
     wifi_sta_->configure(configs->getConfig<WifiConfig>("wifi").value());

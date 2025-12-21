@@ -5,7 +5,7 @@
 #include "app/ConfigButton.hpp"
 
 #include "config/MqttConfig.hpp"
-#include "config/NvsConfigStorage.hpp"
+#include "config/NvsConfigService.hpp"
 #include "config/WifiConfig.hpp"
 #include "esp_event.h"
 #include "esp_netif.h"
@@ -14,7 +14,7 @@
 
 #include "io/config/StateLed.hpp"
 
-#include "config/ConfigStorage.hpp"
+#include "config/ConfigService.hpp"
 
 #include "io/cloud/MqttClient.hpp"
 
@@ -44,7 +44,7 @@ void InitState::onEnter() {
     ESP_ERROR_CHECK(esp_netif_init());
     ESP_ERROR_CHECK(esp_event_loop_create_default());
 
-    ConfigStorage* configs = new NvsConfigStorage();
+    ConfigService* configs = new NvsConfigService();
     context_->registerComponent(configs);
     configs->registerConfig(std::make_shared<WifiConfig>());
     configs->registerConfig(std::make_shared<MqttConfig>());
