@@ -1,0 +1,13 @@
+idf_component_register(
+    SRCS
+        "src/ConfigStorage.cpp"
+        "src/WifiConfig.cpp"
+        "src/MqttConfig.cpp"
+        "src/NvsConfigStorage.cpp"
+    INCLUDE_DIRS
+        "include"
+    REQUIRES
+        io_config
+        json
+        nvs_flash
+)

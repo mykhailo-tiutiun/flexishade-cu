@@ -150,6 +150,11 @@ MqttClient::~MqttClient()
     stop();
 }
 
+void MqttClient::configure(MqttConfig config)
+{
+    config_ = std::move(config);
+}
+
 void MqttClient::start()
 {
     esp_mqtt5_connection_property_config_t connect_property = {
@@ -168,7 +173,7 @@ void MqttClient::start()
     };
 
     esp_mqtt_client_config_t mqtt_cfg = {};
-    mqtt_cfg.broker.address.uri = MQTT_CLIENT_BROKER_URL;
+    mqtt_cfg.broker.address.uri = config_.getURL().c_str();
     mqtt_cfg.session.protocol_ver = MQTT_PROTOCOL_V_5;
     mqtt_cfg.network.disable_auto_reconnect = true;
     mqtt_cfg.session.last_will.topic = "/topic/will";
@@ -178,16 +183,13 @@ void MqttClient::start()
     mqtt_cfg.session.last_will.retain = true;
 
 
-    ESP_LOGI(TAG, "1");
     mqtt_client_ = esp_mqtt_client_init(&mqtt_cfg);
 
-    ESP_LOGI(TAG, "2");
     /* Set connection properties and user properties */
     esp_mqtt5_client_set_user_property(&connect_property.user_property, user_property_arr, USE_PROPERTY_ARR_SIZE);
     esp_mqtt5_client_set_user_property(&connect_property.will_user_property, user_property_arr, USE_PROPERTY_ARR_SIZE);
     esp_mqtt5_client_set_connect_property(mqtt_client_, &connect_property);
 
-    ESP_LOGI(TAG, "3");
     /* If you call esp_mqtt5_client_set_user_property to set user properties, DO NOT forget to delete them.
      * esp_mqtt5_client_set_connect_property will malloc buffer to store the user_property and you can delete it after
      */
@@ -195,12 +197,10 @@ void MqttClient::start()
     esp_mqtt5_client_delete_user_property(connect_property.will_user_property);
 
 
-    ESP_LOGI(TAG, "4");
     esp_mqtt_client_register_event(mqtt_client_, (esp_mqtt_event_id_t) ESP_EVENT_ANY_ID, mqtt5_event_handler, NULL);
     esp_mqtt_client_register_event(mqtt_client_, MQTT_EVENT_CONNECTED, connected_event_handler, this);
     esp_mqtt_client_register_event(mqtt_client_, MQTT_EVENT_DATA, data_event_handler, this);
 
-    ESP_LOGI(TAG, "5");
     esp_mqtt_client_start(mqtt_client_);
 }
 

@@ -5,6 +5,7 @@ idf_component_register(
         "src/HttpServer.cpp"
         "src/StateLed.cpp"
         "src/WifiAp.cpp"
+        "src/Nvs.cpp"
     INCLUDE_DIRS
         "include"
     REQUIRES
@@ -14,4 +15,5 @@ idf_component_register(
         driver
         esp_http_server
         button
+        nvs_flash
 )

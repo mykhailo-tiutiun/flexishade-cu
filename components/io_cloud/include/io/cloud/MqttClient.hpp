@@ -2,20 +2,21 @@
 #define MQTT_CLIENT_HPP
 
 #include "io/cloud/MqttSubscribtion.hpp"
+#include "config/MqttConfig.hpp"
 #include <map>
 #include <string>
 #include <utility>
-#define MQTT_CLIENT_BROKER_URL "mqtt://192.168.10.2"
+#include "mqtt_client.h"
 
 #define MQTT_CONTENT_TYPE_JSON "application/json"
-
-#include "mqtt_client.h"
 
 class MqttClient {
 
     public:
         MqttClient();
         ~MqttClient();
+
+        void configure(MqttConfig config);
 
         void start();
         void stop();
@@ -26,6 +27,7 @@ class MqttClient {
         bool isUp() const;
 
     private:
+        MqttConfig config_;
         bool is_up_;
         esp_mqtt_client_handle_t mqtt_client_;
 

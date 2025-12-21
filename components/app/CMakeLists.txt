@@ -14,10 +14,11 @@ idf_component_register(
         nvs_flash
         esp_event
         esp-tls
+        esp_event
         lwip
 
         io_cloud
         io_config
         relay
-        esp_event
+        config
 )

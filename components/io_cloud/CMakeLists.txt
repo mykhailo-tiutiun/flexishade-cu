@@ -6,6 +6,8 @@ idf_component_register(
     INCLUDE_DIRS
         "include"
     REQUIRES
+        config
+
         esp_event
         esp_wifi
         mqtt

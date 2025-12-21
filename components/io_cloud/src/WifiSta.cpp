@@ -6,6 +6,10 @@
 #include "freertos/idf_additions.h"
 #include "freertos/projdefs.h"
 
+#include <cstdint>
+#include <cstring>
+#include <utility>
+
 #define WIFI_CONNECTED_BIT BIT0
 #define WIFI_FAIL_BIT      BIT1
 
@@ -39,6 +43,11 @@ WifiSta::~WifiSta()
     }
 }
 
+void WifiSta::configure(WifiConfig config)
+{
+    config_ = std::move(config);
+}
+
 void WifiSta::start()
 {
     event_group_ = xEventGroupCreate();
@@ -61,8 +70,6 @@ void WifiSta::start()
 
     wifi_config_t wifi_config = {
         .sta = {
-            .ssid = WIFI_STA_SSID,
-            .password = WIFI_STA_PASS,
             .threshold = {
                 .authmode = WIFI_AUTH_WPA2_PSK,
             },
@@ -70,6 +77,10 @@ void WifiSta::start()
             .sae_h2e_identifier = "",
         },
     };
+
+    std::strncpy((char*)(&wifi_config.sta.ssid), config_.getSSID().c_str(), 32);
+    std::strncpy((char*)(&wifi_config.sta.password), config_.getPassword().c_str(), 64);
+
 
     ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
     ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_STA, &wifi_config));
@@ -83,16 +94,15 @@ void WifiSta::start()
 
     if (bits & WIFI_CONNECTED_BIT) {
         ESP_LOGI(TAG, "connected to ap SSID:%s password:%s",
-                 WIFI_STA_SSID, WIFI_STA_PASS);
+                 config_.getSSID().c_str(), config_.getPassword().c_str());
+        is_up_ = true;
     } else if (bits & WIFI_FAIL_BIT) {
         ESP_LOGI(TAG, "Failed to connect to SSID:%s, password:%s",
-                 WIFI_STA_SSID, WIFI_STA_PASS);
+                 config_.getSSID().c_str(), config_.getPassword().c_str());
         stop();
     } else {
         ESP_LOGE(TAG, "UNEXPECTED EVENT");
     }
-
-    is_up_ = true;
 
     ESP_LOGI(TAG, "wifi sta started.");
     vTaskDelay(pdMS_TO_TICKS(1000));
@@ -118,6 +128,12 @@ void WifiSta::stop()
     ESP_ERROR_CHECK(esp_wifi_deinit());
 
     vEventGroupDelete(event_group_);
+}
+
+void WifiSta::restart()
+{
+    stop();
+    start();
 }
 
 void WifiSta::retry_conn()

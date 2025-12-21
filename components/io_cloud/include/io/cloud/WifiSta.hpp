@@ -1,6 +1,7 @@
 #ifndef WIFI_STA_HPP
 #define WIFI_STA_HPP
 
+#include <memory>
 #define WIFI_STA_SSID "RaspAP"
 #define WIFI_STA_PASS "45834110"
 #define WIFI_STA_WIFI_CHANNEL 1
@@ -9,8 +10,24 @@
 #include "esp_wifi.h"
 #include "esp_event.h"
 
-class WifiSta {
+#include "config/WifiConfig.hpp"
+
+class WifiSta
+{
+    public:
+        WifiSta();
+        ~WifiSta();
+
+        void configure(WifiConfig config);
+
+        void start();
+        void stop();
+        void restart();
+
+        bool isUp() const;
+
     private:
+        WifiConfig config_;
         bool is_up_;
         esp_netif_t *eps_netif_;
         EventGroupHandle_t event_group_;
@@ -23,14 +40,6 @@ class WifiSta {
 
         void retry_conn();
         void reset_retries();
-    public:
-        WifiSta();
-        ~WifiSta();
-
-        void start();
-        void stop();
-        
-        bool isUp() const;
 };
 
 #endif
