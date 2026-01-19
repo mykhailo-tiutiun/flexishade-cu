@@ -9,6 +9,74 @@
 
   <!--  <div id="loading">Loading...</div> -->
 
+  <div x-show="!loading">
+    <template x-for="(config, name) in configs" :key="name">
+      <div>
+        <template x-for="(chunk, index) in chunkFields(config)" :key="index">
+          <div class="form-row">
+            <template x-for="[key, value] in chunk" :key="key">
+                  <div class="form-group">
+                      <label :for="`${name}-${key}`" x-text="formatName(key)"></label>
+                      <!-- Boolean Field -->
+                      <template x-if="typeof value === 'boolean'">
+                          <div class="checkbox-group">
+                              <input
+                                  type="checkbox"
+                                  :id="`${name}-${key}`"
+                                  :checked="config[key]"
+                                  @change="config[key] = $event.target.checked"
+                              >
+                              <label
+                                  :for="`${name}-${key}`"
+                                  style="margin: 0"
+                                  x-text="config[key] ? 'Enabled' : 'Disabled'"
+                              ></label>
+                          </div>
+                      </template>
+
+                      <!-- Number Field -->
+                      <template x-if="typeof value === 'number'">
+                          <input
+                              type="number"
+                              :id="`${name}-${key}`"
+                              x-model.number="config[key]"
+                          >
+                      </template>
+
+                      <!-- Text Field -->
+                      <template x-if="typeof value === 'string' && !key.toLowerCase().includes('password')">
+                          <input
+                              type="text"
+                              :id="`${name}-${key}`"
+                              x-model="config[key]"
+                          >
+                      </template>
+                  </div>
+              </template>
+          </div>
+        </template>
+      </div>
+        <div class="button-group">
+                        <button
+                            class="btn-save"
+                            @click="saveConfig(name)"
+                            :disabled="saving"
+                        >
+                            <span x-show="!saving">💾 Save</span>
+                            <span x-show="saving">Saving...</span>
+                        </button>
+                        <button
+                            class="btn-reset"
+                            @click="resetConfig(name)"
+                            :disabled="saving"
+                        >
+                            🔄 Reset
+                        </button>
+                    </div>
+      </div>
+    </template>
+  </div>
+
   <form id="wifi_form" action="/api/config/wifi" method="post">
     <h3>Wifi Config</h3>
     <div id="wifi_loading">Loading...</div>
@@ -25,6 +93,21 @@
     <button type="submit">Save</button>
   </form>
 
+  <script>
+    function renderConfigs(configs) {
+      const container = document.getElementById('configs');
+      container.innerHTML = '';
+
+      configs.forEach((config) => {
+        const card = document.createElement('div');
+        card.className = 'config-card';
+        card.innerHTML = '
+          <h3>${config.name}</h3>
+
+          <div
+      });
+    }
+  </script>
 
 </body>
 </html>

@@ -14,6 +14,7 @@ void MqttRelayController::subscribeAll()
     mqtt_->subscribe(setRelayStateByLocalIdSubsribtion());
 }
 
+// dev/control_unit/{cu_id}/local_relay/set_state
 MqttSubscribtion MqttRelayController::setRelayStateByLocalIdSubsribtion()
 {
     std::string topic = std::string("dev/control_unit/") + "1" + "/local_relay/set_state";
