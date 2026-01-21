@@ -10,14 +10,17 @@ class HttpServer {
     public:
         HttpServer();
         ~HttpServer();
+
         void start();
-
-        void registerHandler(HttpHandler handler);
-
         void stop();
+
+        void addHandler(HttpHandler* handler);
+
     private:
         httpd_handle_t server_;
-        std::map<std::string, HttpHandler> handlers_;
+        std::map<std::string, HttpHandler*> handlers_;
+
+        void registerAllHandlers();
 
         static esp_err_t handle(httpd_req_t *req);
 };

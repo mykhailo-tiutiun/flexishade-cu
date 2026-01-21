@@ -7,9 +7,7 @@
 #include <functional>
 #include <string>
 
-static const char *TAG = "http server";
-
-
+static const char *TAG = "http_server";
 
 static esp_err_t captive_portal_handler(httpd_req_t *req) {
     httpd_resp_set_status(req, "302 Found");
@@ -25,25 +23,17 @@ static const httpd_uri_t default_url = {
     .user_ctx  = NULL
 };
 
-static esp_err_t hello_get_handler(httpd_req_t *req) {
-    /* Send response with custom headers and body set as the
-     * string passed in user context*/
-    const char* resp_str = (const char*) req->user_ctx;
-    httpd_resp_send(req, resp_str, HTTPD_RESP_USE_STRLEN);
+HttpServer::HttpServer()
+: server_(nullptr)
+{}
 
-    return ESP_OK;
+HttpServer::~HttpServer()
+{
+    stop();
 }
 
-static const httpd_uri_t hello = {
-    .uri       = "/",
-    .method    = HTTP_GET,
-    .handler   = hello_get_handler,
-    /* Let's pass response string in user
-     * context to demonstrate it's usage */
-    .user_ctx  = (void*)"Hello World!"
-};
-
-HttpServer::HttpServer() : server_(nullptr) {
+void HttpServer::start()
+{
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
     config.lru_purge_enable = true;
     config.uri_match_fn = httpd_uri_match_wildcard;
@@ -51,11 +41,12 @@ HttpServer::HttpServer() : server_(nullptr) {
     ESP_LOGI(TAG, "Starting server on port: '%d'", config.server_port);
     ESP_ERROR_CHECK(httpd_start(&server_, &config));
 
-    httpd_register_uri_handler(server_, &hello);
+    registerAllHandlers();
     httpd_register_uri_handler(server_, &default_url);
 }
 
-HttpServer::~HttpServer() {
+void HttpServer::stop()
+{
     httpd_stop(server_);
 }
 
@@ -75,22 +66,31 @@ esp_err_t HttpServer::handle(httpd_req_t *req)
     };
 
     auto handler_it = server->handlers_.find(request.uri);
-    if (handler_it != server->handlers_.end()) {
-        auto response = handler_it->second.handleData(request);
-        httpd_resp_send(req, response.content, response.content);
+    if (handler_it == server->handlers_.end()) {
+        return ESP_ERR_NOT_FOUND;
     }
+
+    auto response = handler_it->second->handle(request);
+    httpd_resp_send(req, response.content.c_str(), response.content.size()+1);
 
     return ESP_OK;
 }
 
-void HttpServer::registerHandler(HttpHandler handler)
+void HttpServer::addHandler(HttpHandler* handler)
 {
-    const httpd_uri_t h = {
-        .uri = handler.getUri().c_str(),
-        .method = handler.getMethod(),
-        .handler = handle,
-        .user_ctx = (void*)this,
-    };
+    handlers_[handler->getUri()] = handler;
+}
 
-    httpd_register_uri_handler(server_, &h);
+void HttpServer::registerAllHandlers()
+{
+    for (auto [_, handler] : handlers_) {
+        const httpd_uri_t h = {
+            .uri = handler->getUri().c_str(),
+            .method = handler->getMethod(),
+            .handler = handle,
+            .user_ctx = (void*)this,
+        };
+
+        httpd_register_uri_handler(server_, &h);
+    }
 }

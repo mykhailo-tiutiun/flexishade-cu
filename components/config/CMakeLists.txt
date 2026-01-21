@@ -3,6 +3,7 @@ idf_component_register(
         "src/ConfigService.cpp"
         "src/WifiConfig.cpp"
         "src/MqttConfig.cpp"
+        "src/ConfigController.cpp"
         "src/NvsConfigService.cpp"
     INCLUDE_DIRS
         "include"

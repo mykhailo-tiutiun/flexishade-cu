@@ -11,14 +11,17 @@ class ConfigController
         ConfigController(HttpServer* http_server, ConfigService* service);
         void registerHandlers();
 
-        HttpResponse getHtmlPage(HttpRequest request);
-
-        HttpResponse getConfigs(HttpRequest request);
-        HttpResponse saveConfig(HttpRequest request);
-
     private:
         HttpServer* http_server_;
         ConfigService* service_;
+
+        HttpHandler* getHtmlPageHandler();
+        HttpHandler* getConfigsHandler();
+        HttpHandler* saveConfigHandler();
+
+        static HttpResponse getHtmlPage(HttpRequest request, void* args);
+        static HttpResponse getConfigs(HttpRequest request, void* args);
+        static HttpResponse saveConfig(HttpRequest request, void* args);
 };
 
 #endif

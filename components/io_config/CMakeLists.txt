@@ -3,6 +3,7 @@ idf_component_register(
         "src/GpioButton.cpp"
         "src/dns_server.c"
         "src/HttpServer.cpp"
+        "src/HttpHandler.cpp"
         "src/StateLed.cpp"
         "src/WifiAp.cpp"
         "src/Nvs.cpp"

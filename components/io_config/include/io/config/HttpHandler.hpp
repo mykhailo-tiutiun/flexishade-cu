@@ -4,6 +4,7 @@
 #include "esp_http_server.h"
 #include <functional>
 #include <string>
+
 struct HttpRequest
 {
     std::string uri;
@@ -19,11 +20,12 @@ struct HttpResponse
     int status;
 };
 
-
 class HttpHandler
 {
     public:
         using Handler = std::function<HttpResponse(HttpRequest, void*)>;
+
+        HttpHandler(std::string uri, httpd_method_t method, Handler handler, void* handler_args);
 
         HttpResponse handle(HttpRequest request);
 

@@ -25,7 +25,7 @@ GpioButton::GpioButton(int gpio_num) : button_task_(nullptr) {
     esp_err_t ret = xTaskCreate(
         buttonTaskHandler,
         "ButtonTask",
-        4096,
+        8192,
         (void *)this,
         3,
         &button_task_

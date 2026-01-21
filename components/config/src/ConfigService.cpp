@@ -7,7 +7,7 @@
 #include <optional>
 #include <utility>
 
-static const char* TAG = "config storage";
+static const char* TAG = "config_storage";
 
 void ConfigService::registerConfig(std::shared_ptr<Config> config)
 {
@@ -23,7 +23,7 @@ cJSON* ConfigService::exportAllToJson() const
         cJSON* config_json = config->getJson();
 
 
-        cJSON_AddItemToObject(array_item, "name", config->getName());
+        cJSON_AddStringToObject(array_item, "name", config->getName());
         cJSON_AddItemToObject(array_item, "config", config_json);
 
         cJSON_AddItemToArray(root, array_item);

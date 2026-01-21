@@ -7,7 +7,7 @@ void ZigbeeInitState::onEnter() {
 
     context_->tryGetComponent<StateLed>().value()->amber();
 
-    context_->transit_state(NORMAL);
+    context_->transit_state(CONFIG);
 }
 
 void ZigbeeInitState::onExit() {

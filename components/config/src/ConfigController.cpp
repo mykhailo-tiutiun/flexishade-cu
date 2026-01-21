@@ -1,4 +1,5 @@
 #include "config/ConfigController.hpp"
+#include "http_parser.h"
 #include "io/config/HttpHandler.hpp"
 
 ConfigController::ConfigController(HttpServer* http_server, ConfigService* service)
@@ -9,12 +10,30 @@ ConfigController::ConfigController(HttpServer* http_server, ConfigService* servi
 
 void ConfigController::registerHandlers()
 {
-
+    http_server_->addHandler(getHtmlPageHandler());
+    http_server_->addHandler(getConfigsHandler());
+    http_server_->addHandler(saveConfigHandler());
 }
 
+HttpHandler* ConfigController::getHtmlPageHandler()
+{
+    auto handler = new HttpHandler("/", HTTP_GET, getHtmlPage, nullptr);
+    return handler;
+}
 
+HttpHandler* ConfigController::getConfigsHandler()
+{
+    auto handler = new HttpHandler("/api/config", HTTP_GET, getConfigs, (void*)service_);
+    return handler;
+}
 
-HttpResponse ConfigController::getHtmlPage(HttpRequest request)
+HttpHandler* ConfigController::saveConfigHandler()
+{
+    auto handler = new HttpHandler("/api/config/save", HTTP_POST, getHtmlPage, (void*)service_);
+    return handler;
+}
+
+HttpResponse ConfigController::getHtmlPage(HttpRequest request, void* args)
 {
     HttpResponse response = {
         .content = std::string("Hello config"),
@@ -24,9 +43,10 @@ HttpResponse ConfigController::getHtmlPage(HttpRequest request)
     return response;
 }
 
-HttpResponse ConfigController::getConfigs(HttpRequest request)
+HttpResponse ConfigController::getConfigs(HttpRequest request, void* args)
 {
-    auto configs_json = service_->exportAllToJson();
+    auto service = (ConfigService*) args;
+    auto configs_json = service->exportAllToJson();
 
     HttpResponse response = {
         .content = std::string(cJSON_PrintUnformatted(configs_json)),
@@ -36,11 +56,12 @@ HttpResponse ConfigController::getConfigs(HttpRequest request)
     return response;
 }
 
-HttpResponse ConfigController::saveConfig(HttpRequest request)
+HttpResponse ConfigController::saveConfig(HttpRequest request, void* args)
 {
+    auto service = (ConfigService*) args;
     auto config_json = cJSON_Parse(request.content.data());
 
-    service_->importJson("wifi", config_json);
+    service->importJson("wifi", config_json);
 
     HttpResponse response = {
         .status = 204,

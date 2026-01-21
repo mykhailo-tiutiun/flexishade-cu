@@ -4,6 +4,7 @@
 #include "app/AppState.hpp"
 #include "app/ConfigButton.hpp"
 
+#include "config/ConfigController.hpp"
 #include "config/MqttConfig.hpp"
 #include "config/NvsConfigService.hpp"
 #include "config/WifiConfig.hpp"
@@ -69,6 +70,13 @@ void InitState::onEnter() {
     MqttRelayController* rcontroller = new MqttRelayController(rcontroller_mqtt.value(), rcontroller_service.value());
     rcontroller->subscribeAll();
     context_->registerComponent(rcontroller);
+
+    auto http_server = new HttpServer();
+    context_->registerComponent(http_server);
+
+    auto conf_controller = new ConfigController(http_server, configs);
+    conf_controller->registerHandlers();
+    context_->registerComponent(conf_controller);
 
     context_->tryGetComponent<StateLed>().value()->red();
 
