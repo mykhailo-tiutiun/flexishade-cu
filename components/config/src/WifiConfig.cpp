@@ -16,7 +16,7 @@ cJSON* WifiConfig::getJson() const
     cJSON* json = cJSON_CreateObject();
 
     cJSON_AddStringToObject(json, "ssid", ssid_.c_str());
-    cJSON_AddStringToObject(json, "password", password_.c_str());
+    cJSON_AddStringToObject(json, "psk", password_.c_str());
 
     return json;
 }
@@ -31,7 +31,7 @@ std::expected<void, ConfigError> WifiConfig::applyJson(const cJSON* json)
         return std::unexpected(ConfigError::InvalidJson);
     }
 
-    if ((item = cJSON_GetObjectItem(json, "password")) && cJSON_IsString(item)) {
+    if ((item = cJSON_GetObjectItem(json, "psk")) && cJSON_IsString(item)) {
         password_ = item->valuestring;
     } else {
         return std::unexpected(ConfigError::InvalidJson);

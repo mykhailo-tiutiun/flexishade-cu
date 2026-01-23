@@ -1,6 +1,8 @@
 #include "config/ConfigController.hpp"
+#include "config/IndexPage.hpp"
 #include "http_parser.h"
 #include "io/config/HttpHandler.hpp"
+#include <string>
 
 ConfigController::ConfigController(HttpServer* http_server, ConfigService* service)
 : http_server_(http_server)
@@ -29,15 +31,16 @@ HttpHandler* ConfigController::getConfigsHandler()
 
 HttpHandler* ConfigController::saveConfigHandler()
 {
-    auto handler = new HttpHandler("/api/config/save", HTTP_POST, getHtmlPage, (void*)service_);
+    auto handler = new HttpHandler("/api/config/save", HTTP_POST, saveConfig, (void*)service_);
     return handler;
 }
 
 HttpResponse ConfigController::getHtmlPage(HttpRequest request, void* args)
 {
     HttpResponse response = {
-        .content = std::string("Hello config"),
+        .content = getIndexHtml(),
         .status = 200,
+        .content_type = "text/html",
     };
 
     return response;
@@ -51,6 +54,7 @@ HttpResponse ConfigController::getConfigs(HttpRequest request, void* args)
     HttpResponse response = {
         .content = std::string(cJSON_PrintUnformatted(configs_json)),
         .status = 200,
+        .content_type = "application/json",
     };
 
     return response;
@@ -65,6 +69,7 @@ HttpResponse ConfigController::saveConfig(HttpRequest request, void* args)
 
     HttpResponse response = {
         .status = 204,
+        .content_type = "application/json",
     };
 
     return response;

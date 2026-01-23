@@ -9,17 +9,17 @@ MqttRelayPublisher::MqttRelayPublisher(MqttClient* mqtt)
 
 void MqttRelayPublisher::publishStateWithLocalId(const Relay& relay) const
 {
-    std::string state = relay.isOpen() ? "opened" : "closed";
-    std::string data = std::string("{\"control_unit_id\":1,\"relay_local_id\":") + std::to_string(relay.getLocalId().val) + "\",\"state\":" + state + "\"}";
-    std::string topic = "cloud/control_unit/local_relay/state";
+    std::string state = relay.isOpen() ? "opened" : "close";
+    std::string data = std::string("{\"control_unit_id\":1,\"relay_local_id\":") + std::to_string(relay.getLocalId().val) + "\",\"state\":\"" + state + "\"}";
+    std::string topic = "cloud/control_unit/relay/state";
 
     mqtt_->publish(topic, data);
 }
 
 void MqttRelayPublisher::publishStateWithGlobalId(const Relay& relay) const
 {
-    std::string state = relay.isOpen() ? "opened" : "closed";
-    std::string data = std::string("{\"relay_global_id\":") + std::to_string(relay.getLocalId().val) + "\",\"state\":" + state + "\"}";
+    std::string state = relay.isOpen() ? "opened" : "close";
+    std::string data = std::string("{\"relay_global_id\":") + std::to_string(relay.getLocalId().val) + "\",\"state\":\"" + state + "\"}";
     std::string topic = "cloud/relay/state";
 
     mqtt_->publish(topic, data);

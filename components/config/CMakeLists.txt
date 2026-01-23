@@ -5,6 +5,7 @@ idf_component_register(
         "src/MqttConfig.cpp"
         "src/ConfigController.cpp"
         "src/NvsConfigService.cpp"
+        "src/IndexPage.cpp"
     INCLUDE_DIRS
         "include"
     REQUIRES

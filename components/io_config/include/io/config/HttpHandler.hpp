@@ -15,9 +15,9 @@ struct HttpRequest
 
 struct HttpResponse
 {
-    std::string content_type;
     std::string content;
     int status;
+    std::string content_type;
 };
 
 class HttpHandler
@@ -27,7 +27,7 @@ class HttpHandler
 
         HttpHandler(std::string uri, httpd_method_t method, Handler handler, void* handler_args);
 
-        HttpResponse handle(HttpRequest request);
+        void handle(httpd_req_t *req);
 
         const std::string& getUri() const;
         httpd_method_t getMethod() const;
