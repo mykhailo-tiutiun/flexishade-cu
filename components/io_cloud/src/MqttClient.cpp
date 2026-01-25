@@ -173,7 +173,7 @@ void MqttClient::start()
     };
 
     esp_mqtt_client_config_t mqtt_cfg = {};
-    mqtt_cfg.broker.address.uri = "mqtt://192.168.55.10";
+    mqtt_cfg.broker.address.uri = "mqtt://192.168.50.10";
     mqtt_cfg.session.protocol_ver = MQTT_PROTOCOL_V_5;
     mqtt_cfg.network.disable_auto_reconnect = true;
     mqtt_cfg.session.last_will.topic = "/topic/will";

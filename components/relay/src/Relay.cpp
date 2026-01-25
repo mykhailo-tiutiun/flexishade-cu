@@ -23,14 +23,12 @@ Relay::Relay(LocalId local_id, int gpio_num)
 void Relay::open()
 {
     is_open_ = true;
-    printf("relay is on\n");
     gpio_set_level(gpio_num_, 1);
 }
 
 void Relay::close()
 {
     is_open_ = false;
-    printf("relay is off\n");
     gpio_set_level(gpio_num_, 0);
 }
 

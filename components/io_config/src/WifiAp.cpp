@@ -19,25 +19,15 @@ WifiAp::WifiAp() : is_up_(false) {
             .password = WIFI_AP_PASS,
             .ssid_len = strlen(WIFI_AP_SSID),
             .channel = WIFI_AP_WIFI_CHANNEL,
-#ifdef CONFIG_ESP_WIFI_WIFIAP_SAE_SUPPORT
-            .authmode = WIFI_AUTH_WPA3_PSK,
-#else
             .authmode = WIFI_AUTH_WPA2_PSK,
-#endif
             .max_connection = WIFI_AP_MAX_STA_CONN,
             .pmf_cfg = {
                     .required = true,
             },
-#ifdef CONFIG_ESP_WIFI_WIFIAP_SAE_SUPPORT
-            .sae_pwe_h2e = WPA3_SAE_PWE_BOTH,
-#endif
-#ifdef CONFIG_ESP_WIFI_BSS_MAX_IDLE_SUPPORT
             .bss_max_idle_cfg = {
                 .period = WIFI_AP_DEFAULT_MAX_IDLE_PERIOD,
                 .protected_keep_alive = 1,
             },
-#endif
-            .gtk_rekey_interval = WIFI_AP_GTK_REKEY_INTERVAL,
         },
     };
     if (strlen(WIFI_AP_PASS) == 0) {
