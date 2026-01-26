@@ -1,22 +1,31 @@
 #include "app/NormalState.hpp"
 
 #include "app/AppContext.hpp"
+#include "app/AppState.hpp"
 #include "config/ConfigService.hpp"
 #include "io/cloud/MqttClient.hpp"
 #include "io/config/StateLed.hpp"
 #include "io/cloud/WifiSta.hpp"
 
+static const char* TAG = "normal_state";
+
+#define ERROR_CHECK(exp) \
+    auto result = exp; \
+    if (!result) { \
+        ESP_LOGE(TAG, "Error: %s", result.error().c_str()); \
+        context_->transit_state(NORMAL_ERR); \
+        return; \
+    }
+
 void NormalState::onEnter()
 {
     auto configs = context_->tryGetComponent<ConfigService>().value();
 
-    wifi_sta_ = new WifiSta();
+    wifi_sta_ = context_->tryGetComponent<WifiSta>().value();
     wifi_sta_->configure(configs->getConfig<WifiConfig>("wifi").value());
-    wifi_sta_->start();
 
-    if (auto mqtt = context_->tryGetComponent<MqttClient>()){
-        mqtt.value()->start();
-    }
+    ERROR_CHECK(wifi_sta_->start());
+    context_->tryGetComponent<MqttClient>().value()->start();
 
     context_->tryGetComponent<StateLed>().value()->green();
 }
@@ -25,13 +34,11 @@ void NormalState::onExit()
 {
     context_->tryGetComponent<StateLed>().value()->amber();
 
-    if (auto mqtt = context_->tryGetComponent<MqttClient>()){
-        mqtt.value()->stop();
+    if(context_->tryGetComponent<MqttClient>().value()->isUp()){
+        context_->tryGetComponent<MqttClient>().value()->stop();
     }
 
-    if (wifi_sta_->isUp()){
-        wifi_sta_->stop();
-    }
+    ERROR_CHECK(context_->tryGetComponent<WifiSta>().value()->stop());
 }
 
 void NormalState::toogleConfigMode() {

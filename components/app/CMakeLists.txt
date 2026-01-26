@@ -6,6 +6,9 @@ idf_component_register(
         "src/ZigbeeInitState.cpp"
         "src/NormalState.cpp"
         "src/ConfigState.cpp"
+        "src/NormalErrState.cpp"
+        "src/ConfigErrState.cpp"
+        "src/CriticalState.cpp"
         "src/ConfigButton.cpp"
     INCLUDE_DIRS
         "include"

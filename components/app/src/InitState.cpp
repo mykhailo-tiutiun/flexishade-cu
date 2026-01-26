@@ -11,6 +11,8 @@
 #include "esp_event.h"
 #include "esp_netif.h"
 #include "esp_wifi.h"
+#include "io/cloud/WifiSta.hpp"
+#include "io/config/WifiAp.hpp"
 #include "nvs_flash.h"
 
 #include "io/config/StateLed.hpp"
@@ -26,6 +28,7 @@
 #include "relay/MqttRelayPublisher.hpp"
 #include <memory>
 
+#include "esp_task_wdt.h"
 
 void InitState::onEnter() {
     StateLed *led = new StateLed();
@@ -52,6 +55,9 @@ void InitState::onEnter() {
 
     context_->registerComponent(new MqttClient());
 
+    auto wifi_sta = new WifiSta();
+    context_->registerComponent(wifi_sta);
+
     RelayDb* relaydb = new RelayDb();
     relaydb->save(Relay(LocalId(1), 6));
     context_->registerComponent(relaydb);
@@ -70,6 +76,9 @@ void InitState::onEnter() {
     MqttRelayController* rcontroller = new MqttRelayController(rcontroller_mqtt.value(), rcontroller_service.value());
     rcontroller->subscribeAll();
     context_->registerComponent(rcontroller);
+
+    auto wifi_ap = new WifiAp();
+    context_->registerComponent(wifi_ap);
 
     auto http_server = new HttpServer();
     context_->registerComponent(http_server);

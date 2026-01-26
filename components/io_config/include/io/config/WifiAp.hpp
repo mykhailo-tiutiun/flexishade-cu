@@ -1,6 +1,8 @@
 #ifndef WIFI_AP_HPP
 #define WIFI_AP_HPP
 
+#include <expected>
+#include <string>
 #define WIFI_AP_SSID "CU-Config"
 #define WIFI_AP_PASS "12345678"
 #define WIFI_AP_WIFI_CHANNEL 1
@@ -17,6 +19,10 @@ class WifiAp {
     public:
         WifiAp();
         ~WifiAp();
+
+        std::expected<void, std::string> start();
+        std::expected<void, std::string> stop();
+
         bool isUp() const;
 };
 

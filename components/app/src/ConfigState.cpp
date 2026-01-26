@@ -14,7 +14,7 @@ ConfigState::ConfigState() {}
 
 void ConfigState::onEnter() {
 
-    wifi_ap_ = new WifiAp();
+    context_->tryGetComponent<WifiAp>().value()->start();
     context_->tryGetComponent<HttpServer>().value()->start();
     dns_server_ = start_capture_portal_dns_server();
 
@@ -25,9 +25,7 @@ void ConfigState::onExit() {
     stop_capture_portal_dns_server(dns_server_);
 
     context_->tryGetComponent<HttpServer>().value()->stop();
-
-    delete wifi_ap_;
-    wifi_ap_ = nullptr;
+    context_->tryGetComponent<WifiAp>().value()->stop();
 
     context_->tryGetComponent<StateLed>().value()->amber();
 }

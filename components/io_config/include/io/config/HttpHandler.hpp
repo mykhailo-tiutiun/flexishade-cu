@@ -1,6 +1,7 @@
 #ifndef HTTP_HANDLER_HPP
 #define HTTP_HANDLER_HPP
 
+#include "esp_err.h"
 #include "esp_http_server.h"
 #include <functional>
 #include <string>
@@ -27,7 +28,7 @@ class HttpHandler
 
         HttpHandler(std::string uri, httpd_method_t method, Handler handler, void* handler_args);
 
-        void handle(httpd_req_t *req);
+        esp_err_t handle(httpd_req_t *req);
 
         const std::string& getUri() const;
         httpd_method_t getMethod() const;

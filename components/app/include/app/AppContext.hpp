@@ -6,6 +6,7 @@
 #include <typeindex>
 #include <unordered_map>
 #include "app/AppState.hpp"
+#include "app/TaskQueue.hpp"
 
 
 class Component
@@ -49,9 +50,12 @@ class AppContext {
         AppState *state_;
         std::unordered_map<std::type_index, std::any> components_;
         std::unordered_map<AppStateType, AppState*> states_;
+        TaskQueue<AppStateType>* state_transit_task_queue_;
 
         AppState* getState(AppStateType type);
         void addState(AppState* state);
+
+        void transit_state_handler(AppStateType type);
 };
 
 #endif

@@ -1,11 +1,12 @@
 #ifndef WIFI_STA_HPP
 #define WIFI_STA_HPP
 
+#include <expected>
 #include <memory>
 #define WIFI_STA_SSID "RaspAP"
 #define WIFI_STA_PASS "45834110"
 #define WIFI_STA_WIFI_CHANNEL 1
-#define WIFI_STA_MAXIMUM_RETRY 5
+#define WIFI_STA_MAXIMUM_RETRY 3
 
 #include "esp_wifi.h"
 #include "esp_event.h"
@@ -20,9 +21,8 @@ class WifiSta
 
         void configure(WifiConfig config);
 
-        void start();
-        void stop();
-        void restart();
+        std::expected<void, std::string> start();
+        std::expected<void, std::string> stop();
 
         bool isUp() const;
 

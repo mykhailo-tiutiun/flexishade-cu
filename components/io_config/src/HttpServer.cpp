@@ -6,6 +6,9 @@
 #include <cstdlib>
 #include <functional>
 #include <string>
+#include <expected>
+
+#define ERROR_CHECK(exp, msg) if (exp == ESP_FAIL) { return std::unexpected(msg); }
 
 static const char *TAG = "http_server";
 
@@ -17,7 +20,6 @@ static esp_err_t captive_portal_handler(httpd_req_t *req) {
 }
 
 HttpServer::HttpServer()
-: server_(nullptr)
 {}
 
 HttpServer::~HttpServer()
@@ -25,21 +27,37 @@ HttpServer::~HttpServer()
     stop();
 }
 
-void HttpServer::start()
+std::expected<void, std::string> HttpServer::start()
 {
+    if (is_up_ == true) {
+        return std::unexpected("HttpServer start, unexpected state: up");
+    }
+
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
     config.lru_purge_enable = true;
     config.uri_match_fn = httpd_uri_match_wildcard;
 
-    ESP_LOGI(TAG, "Starting server on port: '%d'", config.server_port);
-    ESP_ERROR_CHECK(httpd_start(&server_, &config));
-
+    ERROR_CHECK(httpd_start(&server_, &config), "HttpServer init failed");
     registerAllHandlers();
+
+    is_up_ = true;
+    ESP_LOGI(TAG, "Started on port: '%d'", config.server_port);
+
+    return {};
 }
 
-void HttpServer::stop()
+std::expected<void, std::string> HttpServer::stop()
 {
+    if (is_up_ == false) {
+        return std::unexpected("HttpServer stop, unexpected state: down");
+    }
+
+    is_up_ = false;
+
     httpd_stop(server_);
+    ESP_LOGI(TAG, "Stopped");
+
+    return {};
 }
 
 esp_err_t HttpServer::handle(httpd_req_t *req)
@@ -49,8 +67,7 @@ esp_err_t HttpServer::handle(httpd_req_t *req)
     auto handler_it = server->handlers_.find(req->uri);
 
     if (handler_it != server->handlers_.end()) {
-        handler_it->second->handle(req);
-        return ESP_OK;
+        return handler_it->second->handle(req);
     } else {
         return captive_portal_handler(req);
     }
@@ -71,4 +88,9 @@ void HttpServer::registerAllHandlers()
     };
 
     httpd_register_uri_handler(server_, &h);
+}
+
+bool HttpServer::isUp() const
+{
+    return is_up_;
 }
