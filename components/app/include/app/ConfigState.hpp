@@ -2,10 +2,8 @@
 #define CONFIG_STATE_HPP
 
 #include "app/AppState.hpp"
-#include "io/config/WifiAp.hpp"
-#include "io/config/HttpServer.hpp"
-
-typedef struct dns_server_handle *dns_server_handle_t;
+#include "wifi/WifiAp.hpp"
+#include "http/HttpServer.hpp"
 
 class ConfigState: public AppState
 {
@@ -29,7 +27,6 @@ class ConfigState: public AppState
     private:
         WifiAp *wifi_ap_;
         HttpServer *http_server_;
-        dns_server_handle_t dns_server_;
 };
 
 #endif

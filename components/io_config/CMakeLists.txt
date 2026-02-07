@@ -1,11 +1,7 @@
 idf_component_register(
     SRCS
         "src/GpioButton.cpp"
-        "src/dns_server.c"
-        "src/HttpServer.cpp"
-        "src/HttpHandler.cpp"
         "src/StateLed.cpp"
-        "src/WifiAp.cpp"
         "src/Nvs.cpp"
     INCLUDE_DIRS
         "include"
@@ -14,7 +10,6 @@ idf_component_register(
         esp_event
         esp_wifi
         driver
-        esp_http_server
         button
         nvs_flash
 )

@@ -1,0 +1,10 @@
+idf_component_register(
+    SRCS
+        "src/MqttClient.cpp"
+        "src/MqttSubscription.cpp"
+    INCLUDE_DIRS
+        "include"
+    REQUIRES
+        mqtt
+        app_config
+)

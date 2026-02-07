@@ -7,9 +7,8 @@ enum AppStateType {
     INIT,
     ZIGBEE_INIT,
     NORMAL,
+    LOCAL_ONLY,
     CONFIG,
-    NORMAL_ERR,
-    CONFIG_ERR,
     CRITICAL,
 };
 

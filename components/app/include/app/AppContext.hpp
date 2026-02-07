@@ -20,7 +20,7 @@ class AppContext {
         AppContext();
         void run_app();
 
-        void transit_state(AppStateType type);
+        void transit_state(AppStateType type) const;
         AppState* getCurrentState() const;
 
 

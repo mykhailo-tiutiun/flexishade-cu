@@ -6,8 +6,7 @@ idf_component_register(
         "src/ZigbeeInitState.cpp"
         "src/NormalState.cpp"
         "src/ConfigState.cpp"
-        "src/NormalErrState.cpp"
-        "src/ConfigErrState.cpp"
+        "src/LocalOnlyState.cpp"
         "src/CriticalState.cpp"
         "src/ConfigButton.cpp"
     INCLUDE_DIRS
@@ -19,9 +18,15 @@ idf_component_register(
         esp-tls
         esp_event
         lwip
+        pthread
 
-        io_cloud
         io_config
-        relay
-        config
+        app_relay
+        app_config
+        app_wifi
+        app_http
+        app_mqtt
+        app_dns
+        app_zigbee
+        app_rc
 )

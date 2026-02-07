@@ -2,7 +2,7 @@
 #define NORMAL_STATE_HPP
 
 #include "app/AppState.hpp"
-#include "io/cloud/WifiSta.hpp"
+#include "wifi/WifiSta.hpp"
 
 class NormalState: public AppState {
     private:

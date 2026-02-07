@@ -1,0 +1,10 @@
+idf_component_register(
+    SRCS
+        "src/RelayRc.cpp"
+        "src/RcService.cpp"
+        "src/RcRepository.cpp"
+    INCLUDE_DIRS
+        "include"
+    REQUIRES
+        app_relay
+)
