@@ -1,8 +1,8 @@
-#ifndef RELAY_RC_SERVICE_HPP
-#define RELAY_RC_SERVICE_HPP
+#ifndef RC_SERVICE_HPP
+#define RC_SERVICE_HPP
 
 #include "rc/RcRepository.hpp"
-#include "rc/RelayRc.hpp"
+#include "rc/Rc.hpp"
 #include "relay/RelayService.hpp"
 #include <cstdint>
 
@@ -17,7 +17,8 @@ class RcService
         RcRepository* rc_repository_;
         RelayService* relay_service_;
 
-        RelayRc newRc(std::uint64_t addr);
+        Rc newRc(std::uint64_t addr);
+
 };
 
 #endif

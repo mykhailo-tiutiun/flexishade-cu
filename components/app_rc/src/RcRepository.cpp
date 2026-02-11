@@ -6,7 +6,7 @@ RcRepository::~RcRepository()
     reset();
 }
 
-void RcRepository::save(RelayRc rc)
+void RcRepository::save(Rc rc)
 {
     auto addr = rc.getAddr();
 
@@ -18,9 +18,9 @@ void RcRepository::reset()
     rcs_.clear();
 }
 
-std::vector<RelayRc> RcRepository::getAll() const
+std::vector<Rc> RcRepository::getAll() const
 {
-    std::vector<RelayRc> vals;
+    std::vector<Rc> vals;
     vals.reserve(rcs_.size());
 
     for (auto& [key, val] : rcs_) {
@@ -30,7 +30,7 @@ std::vector<RelayRc> RcRepository::getAll() const
     return vals;
 }
 
-std::optional<RelayRc> RcRepository::getByAddr(const std::uint64_t& id) const
+std::optional<Rc> RcRepository::getByAddr(const std::uint64_t& id) const
 {
     auto it = rcs_.find(id);
 

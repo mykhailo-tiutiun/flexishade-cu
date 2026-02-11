@@ -1,13 +1,13 @@
-#ifndef RELAY_RC_HPP
-#define RELAY_RC_HPP
+#ifndef RC_HPP
+#define RC_HPP
 
 #include "relay/Relay.hpp"
 #include <cstdint>
 
-class RelayRc
+class Rc
 {
     public:
-        RelayRc(std::uint64_t addr, RelayId relay_id);
+        Rc(std::uint64_t addr, RelayId relay_id);
         std::uint64_t getAddr() const;
         const RelayId& getRelayId() const;
 

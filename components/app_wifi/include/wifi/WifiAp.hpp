@@ -5,7 +5,7 @@
 #include <string>
 #define WIFI_AP_SSID "CU-Config"
 #define WIFI_AP_PASS "12345678"
-#define WIFI_AP_WIFI_CHANNEL 1
+#define WIFI_AP_WIFI_CHANNEL 11
 #define WIFI_AP_MAX_STA_CONN 4
 
 struct esp_netif_obj;

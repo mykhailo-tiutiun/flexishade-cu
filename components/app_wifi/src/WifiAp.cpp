@@ -40,7 +40,7 @@ std::expected<void, std::string> WifiAp::start()
             .authmode = WIFI_AUTH_WPA2_PSK,
             .max_connection = WIFI_AP_MAX_STA_CONN,
             .pmf_cfg = {
-                    .required = true,
+                .required = true,
             },
             .bss_max_idle_cfg = {
                 .period = WIFI_AP_DEFAULT_MAX_IDLE_PERIOD,

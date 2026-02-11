@@ -67,6 +67,7 @@ void InitState::onEnter() {
 
     RelayDb* relaydb = new RelayDb();
     relaydb->save(Relay(RelayId(1), 6));
+    relaydb->save(Relay(RelayId(2), 7));
     context_->registerComponent(relaydb);
 
     auto rpublisher_mqtt = context_->tryGetComponent<MqttClient>().value();

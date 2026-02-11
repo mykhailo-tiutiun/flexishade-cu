@@ -5,6 +5,7 @@
 #include <string>
 #include "esp_check.h"
 #include "esp_err.h"
+#include "esp_log.h"
 
 extern "C" {
 
@@ -26,7 +27,7 @@ extern "C" {
 
 static const char *TAG = "zigbee";
 
-RcService* rc_service;
+std::optional<Zigbee*> Zigbee::zigbee_instance = {};
 
 static void bdb_start_top_level_commissioning_cb(uint8_t mode_mask)
 {
@@ -210,57 +211,10 @@ static uint64_t uint64_by_ieee_address(esp_zb_ieee_addr_t ieee_addr)
 }
 
 
-static bool my_raw_handler(uint8_t bufid)
-{
-    // Пример доступа к info (ZBOSS макрос / структура)
-    auto cmd_info = ZB_BUF_GET_PARAM(bufid, zb_zcl_parsed_hdr_t);
-
-    if (!cmd_info) {
-        return false;
-    }
-
-    ESP_LOGI(TAG, "Handle command SRC:%05X AddrType:%02X Cluster:0x%04X Cmd:0x%02X Seq:%u",
-            (unsigned)cmd_info->addr_data.common_data.source.u.short_addr,
-            (unsigned)cmd_info->addr_data.common_data.source.addr_type,
-            (unsigned)cmd_info->cluster_id,
-            (unsigned)cmd_info->cmd_id,
-            (unsigned)cmd_info->seq_number);
-
-    if (cmd_info->cluster_id == ZB_ZCL_CLUSTER_ID_ON_OFF) {
-        esp_zb_ieee_addr_t ieee_addr;
-        esp_zb_ieee_address_by_short(cmd_info->addr_data.common_data.source.u.short_addr, ieee_addr);
-        if (cmd_info->cmd_id == ZB_ZCL_CMD_ON_OFF_TOGGLE_ID) {
-            rc_service->toggleRc(uint64_by_ieee_address(ieee_addr));
-
-            ESP_LOGI(TAG, "Handle command SRC:%05X AddrType:%02X Cluster:0x%04X Cmd:0x%02X Seq:%u",
-            (unsigned)cmd_info->addr_data.common_data.source.u.short_addr,
-            (unsigned)cmd_info->addr_data.common_data.source.addr_type,
-            (unsigned)cmd_info->cluster_id,
-            (unsigned)cmd_info->cmd_id,
-            (unsigned)cmd_info->seq_number);
-
-            zb_buf_free(bufid);
-
-            return true;
-        }
-    }
-
-    ESP_LOGI(TAG, "Handle command SRC:%05X AddrType:%02X Cluster:0x%04X Cmd:0x%02X Seq:%u",
-            (unsigned)cmd_info->addr_data.common_data.source.u.short_addr,
-            (unsigned)cmd_info->addr_data.common_data.source.addr_type,
-            (unsigned)cmd_info->cluster_id,
-            (unsigned)cmd_info->cmd_id,
-            (unsigned)cmd_info->seq_number);
-
-    return false;
-}
-
 static void create_custom_endpoint()
 {
     auto cluster_list = esp_zb_zcl_cluster_list_create();
 
-
-    /* basic cluster create with fully customized */
 
     esp_zb_basic_cluster_cfg_t basic_cfg = {
         .zcl_version = ESP_ZB_ZCL_BASIC_ZCL_VERSION_DEFAULT_VALUE,
@@ -269,11 +223,10 @@ static void create_custom_endpoint()
     auto basic_cluster = esp_zb_basic_cluster_create(&basic_cfg);
     esp_zb_cluster_list_add_basic_cluster(cluster_list, basic_cluster, ESP_ZB_ZCL_CLUSTER_SERVER_ROLE);
 
-    /* identify cluster create with fully customized */
     esp_zb_identify_cluster_cfg_t identify_cfg;
     esp_zb_attribute_list_t *identify_cluster = esp_zb_identify_cluster_create(&identify_cfg);
     esp_zb_cluster_list_add_identify_cluster(cluster_list, identify_cluster, ESP_ZB_ZCL_CLUSTER_SERVER_ROLE);
-    /* on-off cluster create with customized */
+
     esp_zb_on_off_cluster_cfg_t on_off_cfg;
     esp_zb_attribute_list_t *on_off_cluster = esp_zb_on_off_cluster_create(&on_off_cfg);
     esp_zb_cluster_list_add_on_off_cluster(cluster_list, on_off_cluster, ESP_ZB_ZCL_CLUSTER_SERVER_ROLE);
@@ -296,33 +249,18 @@ Zigbee::Zigbee(RcService* rc_service)
 : rc_service_(rc_service)
 {}
 
-void Zigbee::zigbeeTask()
+Zigbee::~Zigbee()
 {
-    esp_zb_cfg_t zb_nwk_config = {
-        .esp_zb_role = ESP_ZB_DEVICE_TYPE_COORDINATOR,
-        .install_code_policy = false,
-        .nwk_cfg = {
-            .zczr_cfg = {
-                .max_children = 10,
-            }
-        },
-    };
-
-    esp_zb_init(&zb_nwk_config);
-
-    create_custom_endpoint();
-
-    esp_zb_raw_command_handler_register(my_raw_handler);
-
-    esp_zb_set_primary_network_channel_set(ESP_ZB_PRIMARY_CHANNEL_MASK);
-    ESP_ERROR_CHECK(esp_zb_start(false));
-    esp_zb_stack_main_loop();
+    stop();
 }
-
 
 std::expected<void, std::string> Zigbee::start()
 {
-    rc_service = rc_service_;
+    if (zigbee_instance) {
+        return std::unexpected("Only one Zigbee instance allowed to run!");
+    }
+    zigbee_instance = this;
+
     esp_zb_platform_config_t config = {
         .radio_config = {
             .radio_mode = ZB_RADIO_MODE_NATIVE,
@@ -345,6 +283,8 @@ std::expected<void, std::string> Zigbee::stop()
 {
     is_up_ = false;
 
+    zigbee_instance = {};
+
     return {};
 }
 
@@ -352,3 +292,62 @@ bool Zigbee::isUp() const
 {
     return is_up_;
 }
+
+bool Zigbee::isNetworkOpen() const
+{
+    return is_network_open_;
+}
+
+void Zigbee::zigbeeTask()
+{
+    esp_zb_cfg_t zb_nwk_config = {
+        .esp_zb_role = ESP_ZB_DEVICE_TYPE_COORDINATOR,
+        .install_code_policy = false,
+        .nwk_cfg = {
+            .zczr_cfg = {
+                .max_children = 10,
+            }
+        },
+    };
+
+    esp_zb_init(&zb_nwk_config);
+
+    create_custom_endpoint();
+
+    esp_zb_raw_command_handler_register(rcHandler);
+
+    esp_zb_set_primary_network_channel_set(ESP_ZB_PRIMARY_CHANNEL_MASK);
+    ESP_ERROR_CHECK(esp_zb_start(false));
+    esp_zb_stack_main_loop();
+}
+
+bool Zigbee::rcHandler(uint8_t bufid)
+{
+    auto cmd_info = ZB_BUF_GET_PARAM(bufid, zb_zcl_parsed_hdr_t);
+
+    if (!cmd_info) {
+        return false;
+    }
+
+    if (cmd_info->cluster_id == ZB_ZCL_CLUSTER_ID_ON_OFF) {
+        ESP_LOGI(TAG, "Handle command SRC:%05X AddrType:%02X Cluster:0x%04X Cmd:0x%02X",
+            (unsigned)cmd_info->addr_data.common_data.source.u.short_addr,
+            (unsigned)cmd_info->addr_data.common_data.source.addr_type,
+            (unsigned)cmd_info->cluster_id,
+            (unsigned)cmd_info->cmd_id);
+
+        esp_zb_ieee_addr_t ieee_addr;
+        esp_zb_ieee_address_by_short(cmd_info->addr_data.common_data.source.u.short_addr, ieee_addr);
+        if (cmd_info->cmd_id == ZB_ZCL_CMD_ON_OFF_TOGGLE_ID) {
+            auto rc_service = zigbee_instance.value()->rc_service_;
+            rc_service->toggleRc(uint64_by_ieee_address(ieee_addr));
+
+            zb_buf_free(bufid);
+            return true;
+        }
+    }
+
+    return false;
+}
+
+

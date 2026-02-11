@@ -20,6 +20,7 @@ static esp_err_t captive_portal_handler(httpd_req_t *req) {
 }
 
 HttpServer::HttpServer()
+: is_up_(false)
 {}
 
 HttpServer::~HttpServer()

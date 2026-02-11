@@ -1,7 +1,7 @@
 #ifndef RC_REPOSITORY_HPP
 #define RC_REPOSITORY_HPP
 
-#include "rc/RelayRc.hpp"
+#include "rc/Rc.hpp"
 #include <cstdint>
 #include <map>
 #include <vector>
@@ -10,14 +10,14 @@ class RcRepository {
     public:
         ~RcRepository();
 
-        std::optional<RelayRc> getByAddr(const std::uint64_t& id) const;
-        std::vector<RelayRc> getAll() const;
+        std::optional<Rc> getByAddr(const std::uint64_t& id) const;
+        std::vector<Rc> getAll() const;
 
-        void save(RelayRc rc);
+        void save(Rc rc);
 
         void reset();
     private:
-        std::map<std::uint64_t, RelayRc> rcs_;
+        std::map<std::uint64_t, Rc> rcs_;
 };
 
 #endif

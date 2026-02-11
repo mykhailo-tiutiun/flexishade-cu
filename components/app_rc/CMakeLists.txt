@@ -1,10 +1,14 @@
 idf_component_register(
     SRCS
-        "src/RelayRc.cpp"
+        "src/Rc.cpp"
         "src/RcService.cpp"
         "src/RcRepository.cpp"
+        "src/MqttRcController.cpp"
+        "src/MqttRcPublisher.cpp"
     INCLUDE_DIRS
         "include"
     REQUIRES
         app_relay
+        app_mqtt
+        json
 )

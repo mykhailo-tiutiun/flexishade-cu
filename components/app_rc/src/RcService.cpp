@@ -1,6 +1,6 @@
 #include "rc/RcService.hpp"
 #include "esp_log.h"
-#include "rc/RelayRc.hpp"
+#include "rc/Rc.hpp"
 #include <filesystem>
 
 static const char* TAG = "rc service";
@@ -29,10 +29,10 @@ void RcService::setRelay(std::uint64_t addr, RelayId relay_id)
     }
 }
 
-RelayRc RcService::newRc(std::uint64_t addr)
+Rc RcService::newRc(std::uint64_t addr)
 {
     ESP_LOGI(TAG, "Create new RC %010x", addr);
-    auto rc = RelayRc(addr, RelayId(1));
+    auto rc = Rc(addr, RelayId(1));
     rc_repository_->save(rc);
     return rc;
 }

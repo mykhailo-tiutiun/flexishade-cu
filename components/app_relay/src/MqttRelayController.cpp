@@ -14,10 +14,10 @@ void MqttRelayController::subscribeAll()
     mqtt_->subscribe(setRelayStateByLocalIdSubsribtion());
 }
 
-// dev/control_unit/{cu_id}/local_relay/set_state
+// dev/cu/{cu_id}/relay/set_state
 MqttSubscribtion MqttRelayController::setRelayStateByLocalIdSubsribtion()
 {
-    std::string topic = std::string("dev/control_unit/") + "1" + "/relay/set_state";
+    std::string topic = std::string("dev/cu/") + "1" + "/relay/set_state";
     return MqttSubscribtion(topic, MQTT_CONTENT_TYPE_JSON, setRelayStateByLocalIdHandler, service_);
 }
 
@@ -27,7 +27,7 @@ void MqttRelayController::setRelayStateByLocalIdHandler(std::string data, void* 
 
     cJSON *root = cJSON_Parse(data.data());
     if (root) {
-        cJSON *id_item = cJSON_GetObjectItem(root, "local_id");
+        cJSON *id_item = cJSON_GetObjectItem(root, "relay_id");
         cJSON *state_item = cJSON_GetObjectItem(root, "state");
 
         if (cJSON_IsNumber(id_item) && cJSON_IsString(state_item)) {
