@@ -1,5 +1,4 @@
 #include "rc/RcRepository.hpp"
-#include <cstdint>
 
 RcRepository::~RcRepository()
 {
@@ -8,9 +7,9 @@ RcRepository::~RcRepository()
 
 void RcRepository::save(Rc rc)
 {
-    auto addr = rc.getAddr();
+    auto id = rc.getId();
 
-    rcs_.insert({addr, std::move(rc)});
+    rcs_.insert_or_assign(id, std::move(rc));
 }
 
 void RcRepository::reset()
@@ -30,7 +29,7 @@ std::vector<Rc> RcRepository::getAll() const
     return vals;
 }
 
-std::optional<Rc> RcRepository::getByAddr(const std::uint64_t& id) const
+std::optional<Rc> RcRepository::getById(RcId id) const
 {
     auto it = rcs_.find(id);
 

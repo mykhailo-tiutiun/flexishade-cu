@@ -1,6 +1,9 @@
 #include "mqtt/MqttClient.hpp"
+#include "cJSON.h"
+#include "mqtt/MqttController.hpp"
 #include "mqtt/MqttSubscribtion.hpp"
 #include "esp_event.h"
+#include "mqtt/MqttTopicParser.hpp"
 #include "mqtt_client.h"
 #include "mqtt5_client.h"
 #include "esp_log.h"
@@ -112,7 +115,6 @@ static void mqtt5_event_handler(void *handler_args, esp_event_base_t base, int32
     }
 }
 
-
 MqttClient::MqttClient()
 : start_semaphore_(0)
 {}
@@ -122,16 +124,13 @@ MqttClient::~MqttClient()
     stop();
 }
 
-
 void MqttClient::connected_event_handler(void *handler_args, esp_event_base_t base, int32_t event_id, void *event_data)
 {
     ESP_LOGI(TAG, "MQTT_EVENT_CONNECTED");
 
     auto mqtt_client = (MqttClient*) handler_args;
 
-    for (const auto& [topic, sub] : mqtt_client->subscribtions_) {
-        esp_mqtt_client_subscribe_single(mqtt_client->mqtt_client_, topic.data(), 0);
-    }
+    esp_mqtt_client_subscribe_single(mqtt_client->mqtt_client_, MQTT_CLIENT_SUBSCRIBE_TOPIC, 0);
 
     mqtt_client->is_up_ = true;
 
@@ -156,12 +155,17 @@ void MqttClient::data_event_handler(void *handler_args, esp_event_base_t base, i
     ESP_LOGI(TAG, "TOPIC=%.*s", event->topic_len, event->topic);
     ESP_LOGI(TAG, "DATA=%.*s", event->data_len, event->data);
 
-    std::string topic(event->topic, event->topic_len);
-    std::string data(event->data, event->data_len);
+    std::string_view mqtt_topic(event->topic, event->topic_len);
+    auto payload = cJSON_ParseWithLength(event->data, event->data_len);
 
-    if(auto handler = mqtt_client->getSubscribtion(topic)) {
-        handler.value().get().handleData(data);
+    auto parser = MqttTopicParser(MQTT_CLIENT_ID, mqtt_topic);
+    if (parser.isValid()) {
+        if (auto controller = mqtt_client->getController(parser.getControllerId())) {
+            controller.value()->handle(parser.getMethodId(), payload);
+        }
     }
+
+    cJSON_Delete(payload);
 }
 
 
@@ -254,15 +258,11 @@ std::expected<void, std::string> MqttClient::publish(const std::string& topic, c
     return {};
 }
 
-void MqttClient::subscribe(MqttSubscribtion sub)
+void MqttClient::addController(std::shared_ptr<MqttController> controller)
 {
-    auto topic = sub.getTopic();
+    auto id = std::string(controller->getControllerId());
 
-    subscribtions_.insert({topic, sub});
-
-    if (isUp()) {
-        esp_mqtt_client_subscribe_single(mqtt_client_, topic.data(), 0);
-    }
+    controllers_.insert({std::move(id), controller});
 }
 
 bool MqttClient::isUp() const
@@ -270,11 +270,11 @@ bool MqttClient::isUp() const
     return is_up_;
 }
 
-std::optional<std::reference_wrapper<const MqttSubscribtion>> MqttClient::getSubscribtion(const std::string& topic)
+std::optional<std::shared_ptr<MqttController>> MqttClient::getController(const std::string& controller_topic)
 {
-    auto sub_it = subscribtions_.find(topic);
-    if (sub_it != subscribtions_.end()) {
-        return std::cref(sub_it->second);
+    auto ctrl_it = controllers_.find(controller_topic);
+    if (ctrl_it != controllers_.end()) {
+        return ctrl_it->second;
     }
     return {};
 }

@@ -4,45 +4,46 @@
 #include <string>
 #include "cJSON.h"
 
-MqttRelayController::MqttRelayController(MqttClient* mqtt, RelayService* service)
-    : mqtt_(mqtt)
-    , service_(service)
+MqttRelayController::MqttRelayController(RelayService* service)
+: service_(service)
 {}
 
-void MqttRelayController::subscribeAll()
+void MqttRelayController::handle(const std::string& method_id, cJSON* payload) const
 {
-    mqtt_->subscribe(setRelayStateByLocalIdSubsribtion());
+    if (method_id == "set_state") {
+        setState(payload);
+    }
+    if (method_id == "get_state") {
+        getState(payload);
+    }
 }
 
-// dev/cu/{cu_id}/relay/set_state
-MqttSubscribtion MqttRelayController::setRelayStateByLocalIdSubsribtion()
+void MqttRelayController::setState(cJSON* payload) const
 {
-    std::string topic = std::string("dev/cu/") + "1" + "/relay/set_state";
-    return MqttSubscribtion(topic, MQTT_CONTENT_TYPE_JSON, setRelayStateByLocalIdHandler, service_);
-}
+    cJSON *id_item = cJSON_GetObjectItem(payload, "relay_id");
+    cJSON *state_item = cJSON_GetObjectItem(payload, "state");
 
-void MqttRelayController::setRelayStateByLocalIdHandler(std::string data, void* args)
-{
-    RelayService* service = (RelayService*) args;
+    if (cJSON_IsNumber(id_item) && cJSON_IsString(state_item)) {
+        int id = cJSON_GetNumberValue(id_item);
+        std::string state = cJSON_GetStringValue(state_item);
 
-    cJSON *root = cJSON_Parse(data.data());
-    if (root) {
-        cJSON *id_item = cJSON_GetObjectItem(root, "relay_id");
-        cJSON *state_item = cJSON_GetObjectItem(root, "state");
-
-        if (cJSON_IsNumber(id_item) && cJSON_IsString(state_item)) {
-            int id = cJSON_GetNumberValue(id_item);
-            std::string state = cJSON_GetStringValue(state_item);
-
-            if (state.compare("open") == 0) {
-                service->openById(RelayId(id));
-            }
-            if (state.compare("close") == 0) {
-                service->closeById(RelayId(id));
-            }
+        if (state.compare("open") == 0) {
+            service_->openById(RelayId(id));
+        }
+        if (state.compare("close") == 0) {
+            service_->closeById(RelayId(id));
         }
     }
-
-    cJSON_Delete(root);
 }
 
+void MqttRelayController::getState(cJSON* payload) const
+{
+    cJSON *id_item = cJSON_GetObjectItem(payload, "relay_id");
+
+    if (cJSON_IsNumber(id_item)) {
+        int id = cJSON_GetNumberValue(id_item);
+
+        service_->requestStateById(RelayId(id));
+    }
+
+}

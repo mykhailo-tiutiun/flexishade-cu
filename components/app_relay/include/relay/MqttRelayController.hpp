@@ -1,23 +1,28 @@
 #ifndef MQTT_RELAY_CONTROLLER_HPP
 #define MQTT_RELAY_CONTROLLER_HPP
 
-#include "relay/Relay.hpp"
+#include "cJSON.h"
 #include "relay/RelayService.hpp"
 #include "mqtt/MqttClient.hpp"
 #include "mqtt/MqttSubscribtion.hpp"
-#include <vector>
 
-class MqttRelayController {
+class MqttRelayController : public MqttController {
     public:
-        MqttRelayController(MqttClient* mqtt, RelayService* service);
+        MqttRelayController(RelayService* service);
 
-        void subscribeAll();
+        std::string_view getControllerId() const override
+        {
+            return "relay";
+        };
+
+        void handle(const std::string& method_id, cJSON* payload) const override;
+
     private:
         MqttClient* mqtt_;
         RelayService* service_;
 
-        MqttSubscribtion setRelayStateByLocalIdSubsribtion();
-        static void setRelayStateByLocalIdHandler(std::string data, void* args);
+        void setState(cJSON* payload) const;
+        void getState(cJSON* payload) const;
 };
 
 #endif

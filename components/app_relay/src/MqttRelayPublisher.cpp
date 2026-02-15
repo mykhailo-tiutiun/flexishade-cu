@@ -14,12 +14,13 @@ void MqttRelayPublisher::publishRelayState(const Relay& relay) const
     std::string state = relay.isOpen() ? "opened" : "close";
 
     cJSON_AddNumberToObject(json, "cu_id", 1);
-    cJSON_AddNumberToObject(json, "relay_id", relay.getId().val);
+    cJSON_AddNumberToObject(json, "relay_id", relay.getId());
     cJSON_AddStringToObject(json, "state", state.c_str());
 
+    std::string topic = "cloud/cu/relay/state";
     auto payload = std::string(cJSON_PrintUnformatted(json));
 
-    std::string topic = "cloud/cu/relay/state";
+    cJSON_Delete(json);
 
     mqtt_->publish(topic, payload);
 }

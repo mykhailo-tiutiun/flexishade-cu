@@ -16,6 +16,11 @@ struct RelayId
     RelayId() : val(0) {}
     explicit RelayId(int v) : val(v) {}
 
+    operator int() const
+    {
+        return val;
+    }
+
     bool operator<(const RelayId& other) const
     {
         return val < other.val;

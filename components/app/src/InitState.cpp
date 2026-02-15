@@ -12,6 +12,8 @@
 #include "esp_netif.h"
 #include "esp_pthread.h"
 #include "esp_wifi.h"
+#include "rc/MqttRcController.hpp"
+#include "rc/MqttRcPublisher.hpp"
 #include "rc/RcRepository.hpp"
 #include "rc/RcService.hpp"
 #include "wifi/WifiSta.hpp"
@@ -30,6 +32,9 @@
 #include "relay/RelayDb.hpp"
 #include "relay/MqttRelayController.hpp"
 #include "relay/MqttRelayPublisher.hpp"
+
+#include "esp_coexist.h"
+
 #include <memory>
 
 #include "zigbee/Zigbee.hpp"
@@ -60,7 +65,8 @@ void InitState::onEnter() {
     configs->registerConfig(std::make_shared<WifiConfig>());
     configs->registerConfig(std::make_shared<MqttConfig>());
 
-    context_->registerComponent(new MqttClient());
+    auto mqtt = new MqttClient();
+    context_->registerComponent(mqtt);
 
     auto wifi_sta = new WifiSta();
     context_->registerComponent(wifi_sta);
@@ -70,20 +76,14 @@ void InitState::onEnter() {
     relaydb->save(Relay(RelayId(2), 7));
     context_->registerComponent(relaydb);
 
-    auto rpublisher_mqtt = context_->tryGetComponent<MqttClient>().value();
-    MqttRelayPublisher* rpublisher = new MqttRelayPublisher(rpublisher_mqtt);
+    MqttRelayPublisher* rpublisher = new MqttRelayPublisher(mqtt);
     context_->registerComponent(rpublisher);
 
-    RelayDb* rservice_db = context_->tryGetComponent<RelayDb>().value();
-    MqttRelayPublisher* rservice_publisher = context_->tryGetComponent<MqttRelayPublisher>().value();
-    RelayService* rservice = new RelayService(rservice_db, rservice_publisher);
+    RelayService* rservice = new RelayService(relaydb, rpublisher);
     context_->registerComponent(rservice);
 
-    auto rcontroller_mqtt = context_->tryGetComponent<MqttClient>();
-    auto rcontroller_service = context_->tryGetComponent<RelayService>();
-    MqttRelayController* rcontroller = new MqttRelayController(rcontroller_mqtt.value(), rcontroller_service.value());
-    rcontroller->subscribeAll();
-    context_->registerComponent(rcontroller);
+    auto rcontroller = std::make_shared<MqttRelayController>(rservice);
+    mqtt->addController(rcontroller);
 
     auto wifi_ap = new WifiAp();
     context_->registerComponent(wifi_ap);
@@ -98,15 +98,24 @@ void InitState::onEnter() {
     conf_controller->registerHandlers();
     context_->registerComponent(conf_controller);
 
+    auto mqtt_rc_publisher = new MqttRcPublisher(mqtt);
+    context_->registerComponent(mqtt_rc_publisher);
+
     auto rc_repo = new RcRepository();
     context_->registerComponent(rc_repo);
 
-    auto rc_service = new RcService(rc_repo, rservice);
+    auto rc_service = new RcService(rc_repo, mqtt_rc_publisher, rservice);
     context_->registerComponent(rc_service);
+
+    auto mqtt_rc_controller = std::make_shared<MqttRcController>(rc_service);
+
+    mqtt->addController(mqtt_rc_controller);
 
     auto zigbee = new Zigbee(rc_service);
     zigbee->start();
     context_->registerComponent(zigbee);
+
+    esp_coex_wifi_i154_enable();
 
     context_->tryGetComponent<StateLed>().value()->red();
 

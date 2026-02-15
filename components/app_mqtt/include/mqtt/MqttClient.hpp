@@ -1,17 +1,19 @@
 #ifndef MQTT_CLIENT_HPP
 #define MQTT_CLIENT_HPP
 
-#include "mqtt/MqttSubscribtion.hpp"
+#include "mqtt/MqttController.hpp"
 #include "config/MqttConfig.hpp"
-#include <condition_variable>
 #include <expected>
 #include <functional>
-#include <map>
+#include <memory>
 #include <optional>
 #include <semaphore>
 #include <string>
-#include <utility>
+#include <unordered_map>
 #include "mqtt_client.h"
+
+#define MQTT_CLIENT_ID "dev/cu/1"
+#define MQTT_CLIENT_SUBSCRIBE_TOPIC MQTT_CLIENT_ID"/#"
 
 #define MQTT_CONTENT_TYPE_JSON "application/json"
 
@@ -28,7 +30,7 @@ class MqttClient {
 
         std::expected<void, std::string> publish(const std::string& topic, const std::string& data) const;
 
-        void subscribe(MqttSubscribtion subscribtion);
+        void addController(std::shared_ptr<MqttController> controller);
 
         bool isUp() const;
 
@@ -38,13 +40,13 @@ class MqttClient {
         esp_mqtt_client_handle_t mqtt_client_;
         std::binary_semaphore start_semaphore_;
 
-        std::map<std::string, MqttSubscribtion> subscribtions_;
+        std::unordered_map<std::string, std::shared_ptr<MqttController>> controllers_;
 
         static void connected_event_handler(void *handler_args, esp_event_base_t base, int32_t event_id, void *event_data);
         static void disconnected_event_handler(void *handler_args, esp_event_base_t base, int32_t event_id, void *event_data);
         static void data_event_handler(void *handler_args, esp_event_base_t base, int32_t event_id, void *event_data);
 
-        std::optional<std::reference_wrapper<const MqttSubscribtion>> getSubscribtion(const std::string& topic);
+        std::optional<std::shared_ptr<MqttController>> getController(const std::string& controller_id);
 };
 
 #endif

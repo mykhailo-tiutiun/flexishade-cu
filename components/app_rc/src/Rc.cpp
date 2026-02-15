@@ -2,16 +2,17 @@
 #include "rc/Rc.hpp"
 #include "relay/Relay.hpp"
 
-Rc::Rc(std::uint64_t addr, RelayId relay_id)
-: ieee_addr_(addr)
+Rc::Rc(RcId id, RelayId relay_id)
+: id_(id)
 , relay_id_(relay_id)
 {}
 
-std::uint64_t Rc::getAddr() const
+RcId Rc::getId() const
 {
-    return ieee_addr_;
+    return id_;
 }
-const RelayId& Rc::getRelayId() const
+
+RelayId Rc::getRelayId() const
 {
     return relay_id_;
 }

@@ -6,6 +6,7 @@
 #include "esp_check.h"
 #include "esp_err.h"
 #include "esp_log.h"
+#include "rc/Rc.hpp"
 
 extern "C" {
 
@@ -203,10 +204,12 @@ void esp_zb_app_signal_handler(esp_zb_app_signal_t *signal_struct)
 }
 
 
-static uint64_t uint64_by_ieee_address(esp_zb_ieee_addr_t ieee_addr)
+static std::uint64_t uint64_by_ieee_address(std::uint8_t addr[8])
 {
-    uint64_t v;
-    memcpy(&v, ieee_addr, sizeof(esp_zb_ieee_addr_t));
+    std::uint64_t v = 0;
+    for (int i = 7; i >= 0; --i) {
+        v = (v << 8) | (std::uint64_t)addr[i];
+    }
     return v;
 }
 
@@ -340,7 +343,8 @@ bool Zigbee::rcHandler(uint8_t bufid)
         esp_zb_ieee_address_by_short(cmd_info->addr_data.common_data.source.u.short_addr, ieee_addr);
         if (cmd_info->cmd_id == ZB_ZCL_CMD_ON_OFF_TOGGLE_ID) {
             auto rc_service = zigbee_instance.value()->rc_service_;
-            rc_service->toggleRc(uint64_by_ieee_address(ieee_addr));
+            auto rc_id = RcId(uint64_by_ieee_address(ieee_addr));
+            rc_service->toggleRc(rc_id);
 
             zb_buf_free(bufid);
             return true;

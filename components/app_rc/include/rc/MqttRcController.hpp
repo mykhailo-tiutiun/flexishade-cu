@@ -1,23 +1,24 @@
 #ifndef MQTT_RC_CONTROLLER_HPP
 #define MQTT_RC_CONTROLLER_HPP
 
-#include "rc/Rc.hpp"
+#include "cJSON.h"
+#include "mqtt/MqttController.hpp"
 #include "rc/RcService.hpp"
-#include "mqtt/MqttClient.hpp"
-#include "mqtt/MqttSubscribtion.hpp"
-#include <vector>
 
-class MqttRcController {
+class MqttRcController : public MqttController {
     public:
-        MqttRcController(MqttClient* mqtt, RcService* service);
+        MqttRcController(RcService* service);
 
-        void subscribeAll();
+        std::string_view getControllerId() const override
+        {
+            return "rc";
+        };
+
+        void handle(const std::string& method_id, cJSON* payload) const override;
     private:
-        MqttClient* mqtt_;
         RcService* service_;
 
-        MqttSubscribtion setRcRelaySubsribtion();
-        static void setRcRelayHandler(std::string data, void* args);
+        void setRcRelay(cJSON* payload) const;
 };
 
 #endif
