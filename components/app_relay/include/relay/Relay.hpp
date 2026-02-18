@@ -3,18 +3,18 @@
 
 #include "soc/gpio_num.h"
 #include <cstddef>
+#include <cstdint>
+#include <expected>
 #include <functional>
-#include <optional>
 #include <string>
-#include <variant>
 
 
 struct RelayId
 {
-    int val;
+    std::uint32_t val;
 
     RelayId() : val(0) {}
-    explicit RelayId(int v) : val(v) {}
+    explicit RelayId(std::uint32_t v) : val(v) {}
 
     operator int() const
     {
@@ -37,19 +37,15 @@ struct std::hash<RelayId>
 {
     std::size_t operator()(const RelayId& p) const
     {
-        return hash<int>{}(p.val);
+        return hash<std::uint32_t>{}(p.val);
     }
 };
 
 class Relay
 {
-    private:
-        RelayId id_;
-        gpio_num_t gpio_num_;
-        bool is_open_;
-
     public:
         Relay(RelayId id, int gpio_num);
+
         void open();
         void close();
         void toggle();
@@ -57,6 +53,16 @@ class Relay
         const RelayId& getId() const;
 
         bool isOpen() const;
+
+        std::vector<std::uint8_t> serialize() const;
+        static std::expected<Relay, std::string> desirialize(std::vector<std::uint8_t> blob);
+
+    private:
+        Relay();
+
+        RelayId id_;
+        gpio_num_t gpio_num_;
+        bool is_open_;
 };
 
 #endif

@@ -15,7 +15,7 @@
 #define WIFI_CONNECTED_BIT BIT0
 #define WIFI_FAIL_BIT      BIT1
 
-#define ERROR_CHECK(exp, msg) if (exp == ESP_FAIL) { return std::unexpected(msg); }
+#define ERROR_CHECK(exp, msg) if (exp != ESP_OK) { return std::unexpected(msg); }
 
 static const char *TAG = "wifi sta";
 

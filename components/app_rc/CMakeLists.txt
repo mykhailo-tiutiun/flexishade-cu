@@ -2,7 +2,6 @@ idf_component_register(
     SRCS
         "src/Rc.cpp"
         "src/RcService.cpp"
-        "src/RcRepository.cpp"
         "src/MqttRcController.cpp"
         "src/MqttRcPublisher.cpp"
     INCLUDE_DIRS
@@ -11,4 +10,6 @@ idf_component_register(
         app_relay
         app_mqtt
         json
+
+        app_misc
 )

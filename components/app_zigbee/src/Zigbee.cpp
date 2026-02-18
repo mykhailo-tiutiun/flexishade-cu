@@ -11,17 +11,14 @@
 extern "C" {
 
 #include "zboss_api.h"
-#include "esp_zigbee_attribute.h"
 #include "esp_zigbee_cluster.h"
 #include "esp_zigbee_core.h"
 #include "esp_zigbee_type.h"
-#include "ha/esp_zigbee_ha_standard.h"
 #include "nwk/esp_zigbee_nwk.h"
 #include "platform/esp_zigbee_platform.h"
 #include "zcl/esp_zigbee_zcl_basic.h"
 #include "zcl/esp_zigbee_zcl_common.h"
 #include "zcl/esp_zigbee_zcl_core.h"
-#include "zcl/esp_zigbee_zcl_electrical_meas.h"
 #include "zcl/zb_zcl_common.h"
 
 }

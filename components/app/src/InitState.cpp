@@ -12,6 +12,8 @@
 #include "esp_netif.h"
 #include "esp_pthread.h"
 #include "esp_wifi.h"
+#include "nvs/Nvs.hpp"
+#include "nvs/NvsRcRepository.hpp"
 #include "rc/MqttRcController.hpp"
 #include "rc/MqttRcPublisher.hpp"
 #include "rc/RcRepository.hpp"
@@ -65,6 +67,9 @@ void InitState::onEnter() {
     configs->registerConfig(std::make_shared<WifiConfig>());
     configs->registerConfig(std::make_shared<MqttConfig>());
 
+    auto nvs = new Nvs();
+    context_->registerComponent(nvs);
+
     auto mqtt = new MqttClient();
     context_->registerComponent(mqtt);
 
@@ -101,10 +106,10 @@ void InitState::onEnter() {
     auto mqtt_rc_publisher = new MqttRcPublisher(mqtt);
     context_->registerComponent(mqtt_rc_publisher);
 
-    auto rc_repo = new RcRepository();
-    context_->registerComponent(rc_repo);
+    auto nvs_rc_repo = new NvsRcRepository(nvs);
+    context_->registerComponent(nvs_rc_repo);
 
-    auto rc_service = new RcService(rc_repo, mqtt_rc_publisher, rservice);
+    auto rc_service = new RcService(nvs_rc_repo, mqtt_rc_publisher, rservice);
     context_->registerComponent(rc_service);
 
     auto mqtt_rc_controller = std::make_shared<MqttRcController>(rc_service);

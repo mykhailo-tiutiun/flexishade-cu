@@ -8,7 +8,7 @@
 #include <string>
 #include <expected>
 
-#define ERROR_CHECK(exp, msg) if (exp == ESP_FAIL) { return std::unexpected(msg); }
+#define ERROR_CHECK(exp, msg) if (exp != ESP_OK) { return std::unexpected(msg); }
 
 static const char *TAG = "http_server";
 

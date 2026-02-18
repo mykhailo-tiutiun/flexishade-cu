@@ -6,9 +6,8 @@
 #include <string.h>
 #include "esp_log.h"
 #include "esp_wifi_types_generic.h"
-#include "freertos/idf_additions.h"
 
-#define ERROR_CHECK(exp, msg) if (exp == ESP_FAIL) { return std::unexpected(msg); }
+#define ERROR_CHECK(exp, msg) if (exp != ESP_OK) { return std::unexpected(msg); }
 
 static const char *TAG = "wifi_ap";
 

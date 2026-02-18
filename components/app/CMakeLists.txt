@@ -29,4 +29,5 @@ idf_component_register(
         app_dns
         app_zigbee
         app_rc
+        app_nvs
 )

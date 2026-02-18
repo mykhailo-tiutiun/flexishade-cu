@@ -2,7 +2,6 @@ idf_component_register(
     SRCS
         "src/GpioButton.cpp"
         "src/StateLed.cpp"
-        "src/Nvs.cpp"
     INCLUDE_DIRS
         "include"
     REQUIRES

@@ -14,7 +14,7 @@
 #define MQTT_CLIENT_PUBLISH_QOS 0
 #define MQTT_CLIENT_PUBLISH_RETAIN 0
 
-#define ERROR_CHECK(exp, msg) if (exp == ESP_FAIL) { return std::unexpected(msg); }
+#define ERROR_CHECK(exp, msg) if (exp != ESP_OK) { return std::unexpected(msg); }
 
 static const char* TAG = "mqtt_client";
 
