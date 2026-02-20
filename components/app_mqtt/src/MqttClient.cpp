@@ -1,7 +1,6 @@
 #include "mqtt/MqttClient.hpp"
 #include "cJSON.h"
 #include "mqtt/MqttController.hpp"
-#include "mqtt/MqttSubscribtion.hpp"
 #include "esp_event.h"
 #include "mqtt/MqttTopicParser.hpp"
 #include "mqtt_client.h"
@@ -116,7 +115,8 @@ static void mqtt5_event_handler(void *handler_args, esp_event_base_t base, int32
 }
 
 MqttClient::MqttClient()
-: start_semaphore_(0)
+: is_up_(false)
+, start_semaphore_(0)
 {}
 
 MqttClient::~MqttClient()
@@ -166,12 +166,6 @@ void MqttClient::data_event_handler(void *handler_args, esp_event_base_t base, i
     }
 
     cJSON_Delete(payload);
-}
-
-
-void MqttClient::configure(MqttConfig config)
-{
-    config_ = std::move(config);
 }
 
 std::expected<void, std::string> MqttClient::start()

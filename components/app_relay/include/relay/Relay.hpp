@@ -8,7 +8,6 @@
 #include <functional>
 #include <string>
 
-
 struct RelayId
 {
     std::uint32_t val;
@@ -29,6 +28,17 @@ struct RelayId
     bool operator==(const RelayId& other) const noexcept
     {
         return val == other.val;
+    }
+
+    std::string asAscii85()
+    {
+        char block[5];
+        uint32_t v = val;
+        for (int t = 4; t >= 0; --t) {
+            block[t] = static_cast<char>(v % 85u + 33u);
+            v /= 85u;
+        }
+        return std::string(block, 5);
     }
 };
 
@@ -56,6 +66,10 @@ class Relay
 
         std::vector<std::uint8_t> serialize() const;
         static std::expected<Relay, std::string> desirialize(std::vector<std::uint8_t> blob);
+        static constexpr std::size_t serializationSize()
+        {
+            return sizeof(id_) + sizeof(gpio_num_) + sizeof(is_open_);
+        }
 
     private:
         Relay();

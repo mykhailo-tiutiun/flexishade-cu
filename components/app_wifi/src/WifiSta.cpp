@@ -47,7 +47,7 @@ WifiSta::~WifiSta()
     }
 }
 
-void WifiSta::configure(WifiConfig config)
+void WifiSta::configure(std::unique_ptr<WifiConfig> config)
 {
     config_ = std::move(config);
 }
@@ -86,8 +86,8 @@ std::expected<void, std::string> WifiSta::start()
         },
     };
 
-    std::strncpy((char*)(&wifi_config.sta.ssid), config_.getSSID().c_str(), 32);
-    std::strncpy((char*)(&wifi_config.sta.password), config_.getPassword().c_str(), 64);
+    std::strncpy((char*)(&wifi_config.sta.ssid), config_->getSSID().c_str(), 32);
+    std::strncpy((char*)(&wifi_config.sta.password), config_->getPsk().c_str(), 64);
 
 
     ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA), "Wifi Sta init failed");
@@ -104,11 +104,11 @@ std::expected<void, std::string> WifiSta::start()
 
     if (bits & WIFI_CONNECTED_BIT) {
         ESP_LOGI(TAG, "connected to ap SSID:%s password:%s",
-                 config_.getSSID().c_str(), config_.getPassword().c_str());
+                 config_->getSSID().c_str(), config_->getPsk().c_str());
         return {};
     } else if (bits & WIFI_FAIL_BIT) {
         ESP_LOGE(TAG, "Failed to connect to SSID:%s, password:%s",
-                 config_.getSSID().c_str(), config_.getPassword().c_str());
+                 config_->getSSID().c_str(), config_->getPsk().c_str());
         stop();
         return std::unexpected("Wifi Sta connection failed");
     } else {

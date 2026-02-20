@@ -22,9 +22,16 @@ static const char* TAG = "normal_state";
 void NormalState::onEnter()
 {
     auto configs = context_->tryGetComponent<ConfigService>().value();
+    auto wifi_config = configs->getConfig<WifiConfig>("wifi");
+
+    if (!wifi_config) {
+        ESP_LOGE(TAG, "Error: wifi config not found"); \
+        context_->transit_state(LOCAL_ONLY); \
+        return;
+    }
 
     wifi_sta_ = context_->tryGetComponent<WifiSta>().value();
-    wifi_sta_->configure(configs->getConfig<WifiConfig>("wifi").value());
+    wifi_sta_->configure(std::move(*wifi_config));
 
     ERROR_CHECK(wifi_sta_->start());
 

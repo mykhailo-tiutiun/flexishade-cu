@@ -2,18 +2,14 @@
 #define RELAY_SERVICE_HPP
 
 #include "relay/Relay.hpp"
-#include "relay/RelayDb.hpp"
 #include "relay/MqttRelayPublisher.hpp"
+#include "relay/RelayRepository.hpp"
 
-#include <string>
 #include <vector>
 
 class RelayService {
     public:
-        RelayService(RelayDb* relayDb, MqttRelayPublisher* mqtt_publisher);
-        ~RelayService();
-
-        std::vector<Relay> getAll() const;
+        RelayService(RelayRepository* relayDb, MqttRelayPublisher* mqtt_publisher);
 
         void requestStateById(const RelayId& id) const;
 
@@ -22,10 +18,8 @@ class RelayService {
         void toggleById(const RelayId& id);
 
     private:
-        RelayDb* relayDb_;
+        RelayRepository* relay_repository_;
         MqttRelayPublisher* mqtt_publisher_;
-
-        void publishState(const Relay& relay) const;
 };
 
 #endif

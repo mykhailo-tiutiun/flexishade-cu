@@ -1,6 +1,5 @@
 #include "relay/Relay.hpp"
 #include "driver/gpio.h"
-#include "esp_log.h"
 #include <cstddef>
 #include <cstdint>
 #include <cstdio>
@@ -9,8 +8,6 @@
 #include <optional>
 #include <string>
 #include <vector>
-
-static const char* TAG = "relay";
 
 Relay::Relay(RelayId id, int gpio_num)
 : id_(id)
@@ -30,21 +27,18 @@ Relay::Relay(RelayId id, int gpio_num)
 
 void Relay::open()
 {
-    ESP_LOGI(TAG, "Relay %d, open", id_);
     is_open_ = true;
     gpio_set_level(gpio_num_, 1);
 }
 
 void Relay::close()
 {
-    ESP_LOGI(TAG, "Relay %d, close", id_);
     is_open_ = false;
     gpio_set_level(gpio_num_, 0);
 }
 
 void Relay::toggle()
 {
-    ESP_LOGI(TAG, "Relay %d, toggle", id_);
     if (is_open_) {
         close();
     } else {

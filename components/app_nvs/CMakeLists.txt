@@ -2,6 +2,8 @@ idf_component_register(
     SRCS
         "src/Nvs.cpp"
         "src/NvsRcRepository.cpp"
+        "src/NvsRelayRepository.cpp"
+        "src/NvsConfigRepository.cpp"
     INCLUDE_DIRS
         "include"
     REQUIRES
@@ -9,5 +11,6 @@ idf_component_register(
         nvs_flash
 
         app_rc
+        app_relay
         app_misc
 )

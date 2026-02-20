@@ -4,6 +4,7 @@
 #include "config/Config.hpp"
 #include "config/ConfigError.hpp"
 
+#include "config/ConfigRepository.hpp"
 #include "esp_log.h"
 #include <map>
 #include <memory>
@@ -12,40 +13,33 @@
 class ConfigService
 {
     public:
-        void registerConfig(std::shared_ptr<Config> config);
+        ConfigService(ConfigRepository* config_repository);
 
         template<typename T>
-        std::optional<T> getConfig(const std::string& name) const
+        std::optional<std::unique_ptr<T>> getConfig(const std::string& name) const
         {
             auto config_opt = getRawConfig(name);
 
-            if (!config_opt.has_value()) {
-                return std::nullopt;
-            }
-
-            auto config = config_opt.value();
-
-            auto casted = std::dynamic_pointer_cast<T>(config);
-            if (!casted) {
-                ESP_LOGE("config manager", "Type mismatch for config '%s'", name.c_str());
+            if (!config_opt) {
                 return {};
             }
 
-            return *casted;
-        }
+            auto config = std::move(config_opt.value());
 
-        virtual std::expected<void, ConfigError> loadAll() const = 0;
+            if (auto* raw = dynamic_cast<T*>(config.get())) {
+                config.release();
+                return std::unique_ptr<T>(raw);
+            }
+
+            ESP_LOGE("config_service", "Type mismatch for config '%s'", name.c_str());
+            return {};
+        }
 
         cJSON* exportAllToJson() const;
         std::expected<void, ConfigError> importJson(const std::string& name, const cJSON* json) const;
-
-    protected:
-        std::optional<std::shared_ptr<Config>> getRawConfig(const std::string& name) const;
-
-        virtual std::expected<void, ConfigError> load(std::shared_ptr<Config>) const = 0;
-        virtual std::expected<void, ConfigError> save(std::shared_ptr<Config> config) const = 0;
-
-        std::map<std::string, std::shared_ptr<Config>> configs_;
+    private:
+        std::optional<std::unique_ptr<Config>> getRawConfig(const std::string& name) const;
+        ConfigRepository* config_repository_;
 };
 
 #endif

@@ -4,6 +4,7 @@
 #include "misc/Error.hpp"
 #include <cstdint>
 #include <expected>
+#include <map>
 #include <string>
 #include <vector>
 
@@ -19,7 +20,7 @@ class Nvs
 {
     public:
         std::expected<void, Error<NvsError>> load(const NvsKey& key, NvsData& buf) const;
-        std::expected<std::vector<NvsData>, Error<NvsError>> loadMany(const std::vector<NvsKey>& keys) const;
+        std::expected<std::vector<NvsKey>, Error<NvsError>> getAllKeys() const;
         std::expected<void, Error<NvsError>> save(const NvsKey& key, NvsData data) const;
 };
 

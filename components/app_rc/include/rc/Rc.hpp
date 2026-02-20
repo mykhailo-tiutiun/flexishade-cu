@@ -42,7 +42,7 @@ struct RcId
         };
 
         std::string out;
-        out.reserve(12);
+        out.reserve(10);
 
         for (std::size_t i = 0; i < bytes.size(); i += 4)
         {

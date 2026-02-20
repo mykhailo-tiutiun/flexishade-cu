@@ -1,67 +1,65 @@
 #include "relay/RelayService.hpp"
 
+#include "esp_log.h"
 #include "relay/Relay.hpp"
-#include "relay/RelayDb.hpp"
 #include "relay/MqttRelayPublisher.hpp"
+#include "relay/RelayRepository.hpp"
 
-#include <vector>
+#define ASING_CHECK(result, exp) \
+    auto res = exp; \
+    if (!res) { \
+        auto err = res.error(); \
+        if (err.kind() == RelayRepositoryError::NotFound) { \
+            ESP_LOGW(TAG, "Relay not found"); \
+            return; \
+        } else { \
+            ESP_LOGE(TAG, "Unexpected error: %s", err.msg().c_str()); \
+            return; \
+        } \
+    } \
+    auto result = *res;
 
-RelayService::RelayService(RelayDb* relayDb, MqttRelayPublisher* mqtt_publisher)
-    : relayDb_(relayDb)
+static const char* TAG = "relay_service";
+
+RelayService::RelayService(RelayRepository* relay_repository, MqttRelayPublisher* mqtt_publisher)
+    : relay_repository_(relay_repository)
     , mqtt_publisher_(mqtt_publisher)
 {}
 
-RelayService::~RelayService() {}
-
-std::vector<Relay> RelayService::getAll() const
-{
-    return relayDb_->getAll();
-}
-
 void RelayService::requestStateById(const RelayId& id) const
 {
-    auto orelay = relayDb_->getById(id);
-    if (orelay.has_value()) {
-        Relay relay = orelay.value();
-        publishState(relay);
-    }
+    ESP_LOGI(TAG, "Relay %d request state", id);
+
+    ASING_CHECK(relay, relay_repository_->getById(id));
+    mqtt_publisher_->publishRelayState(relay);
 }
 
 void RelayService::openById(const RelayId& id)
 {
-    auto orelay = relayDb_->getById(id);
-    if (orelay.has_value()) {
-        Relay relay = orelay.value();
-        relay.open();
-        publishState(relay);
-        relayDb_->save(std::move(relay));
-    }
+    ESP_LOGI(TAG, "Relay %d open", id);
+
+    ASING_CHECK(relay, relay_repository_->getById(id));
+    relay.open();
+    relay_repository_->save(relay);
+    mqtt_publisher_->publishRelayState(relay);
 }
 
 void RelayService::closeById(const RelayId& id)
 {
-    auto orelay = relayDb_->getById(id);
-    if (orelay.has_value()) {
-        Relay relay = orelay.value();
-        relay.close();
-        publishState(relay);
-        relayDb_->save(std::move(relay));
-    }
+    ESP_LOGI(TAG, "Relay %d close", id);
+
+    ASING_CHECK(relay, relay_repository_->getById(id));
+    relay.close();
+    relay_repository_->save(relay);
+    mqtt_publisher_->publishRelayState(relay);
 }
 
 void RelayService::toggleById(const RelayId& id)
 {
-    auto orelay = relayDb_->getById(id);
-    if (orelay.has_value()) {
-        Relay relay = orelay.value();
-        relay.toggle();
-        publishState(relay);
-        relayDb_->save(std::move(relay));
-    }
-}
+    ESP_LOGI(TAG, "Relay %d toggle", id);
 
-
-void RelayService::publishState(const Relay& relay) const
-{
+    ASING_CHECK(relay, relay_repository_->getById(id));
+    relay.toggle();
+    relay_repository_->save(relay);
     mqtt_publisher_->publishRelayState(relay);
 }

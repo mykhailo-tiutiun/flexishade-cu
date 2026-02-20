@@ -40,10 +40,11 @@ std::expected<void, Error<NvsError>> Nvs::load(const NvsKey& key, NvsData& buf) 
     return {};
 }
 
-std::expected<std::vector<NvsData>, Error<NvsError>> Nvs::loadMany(const std::vector<NvsKey>& keys) const
+std::expected<std::vector<NvsKey>, Error<NvsError>> Nvs::getAllKeys() const
 {
     return make_error(NvsError::Other, "not implemented");
 }
+
 
 std::expected<void, Error<NvsError>> Nvs::save(const NvsKey& key, NvsData data) const
 {

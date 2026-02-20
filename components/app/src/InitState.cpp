@@ -5,8 +5,6 @@
 #include "app/ConfigButton.hpp"
 
 #include "config/ConfigController.hpp"
-#include "config/MqttConfig.hpp"
-#include "config/NvsConfigService.hpp"
 #include "config/WifiConfig.hpp"
 #include "esp_event.h"
 #include "esp_netif.h"
@@ -14,6 +12,8 @@
 #include "esp_wifi.h"
 #include "nvs/Nvs.hpp"
 #include "nvs/NvsRcRepository.hpp"
+#include "nvs/NvsRelayRepository.hpp"
+#include "nvs/NvsConfigRepository.hpp"
 #include "rc/MqttRcController.hpp"
 #include "rc/MqttRcPublisher.hpp"
 #include "rc/RcRepository.hpp"
@@ -31,7 +31,6 @@
 
 #include "relay/Relay.hpp"
 #include "relay/RelayService.hpp"
-#include "relay/RelayDb.hpp"
 #include "relay/MqttRelayController.hpp"
 #include "relay/MqttRelayPublisher.hpp"
 
@@ -62,13 +61,15 @@ void InitState::onEnter() {
     auto cfg = esp_pthread_get_default_config();
     esp_pthread_set_cfg(&cfg);
 
-    ConfigService* configs = new NvsConfigService();
-    context_->registerComponent(configs);
-    configs->registerConfig(std::make_shared<WifiConfig>());
-    configs->registerConfig(std::make_shared<MqttConfig>());
-
     auto nvs = new Nvs();
     context_->registerComponent(nvs);
+
+    auto cfg_repository = new NvsConfigRepository(nvs);
+    cfg_repository->registerConfig(std::make_unique<WifiConfig>());
+    context_->registerComponent(cfg_repository);
+
+    auto cfg_service = new ConfigService(cfg_repository);
+    context_->registerComponent(cfg_service);
 
     auto mqtt = new MqttClient();
     context_->registerComponent(mqtt);
@@ -76,15 +77,15 @@ void InitState::onEnter() {
     auto wifi_sta = new WifiSta();
     context_->registerComponent(wifi_sta);
 
-    RelayDb* relaydb = new RelayDb();
-    relaydb->save(Relay(RelayId(1), 6));
-    relaydb->save(Relay(RelayId(2), 7));
-    context_->registerComponent(relaydb);
+    auto nvs_relay_repository = new NvsRelayRepository(nvs);
+    nvs_relay_repository->save(Relay(RelayId(1), 6));
+    nvs_relay_repository->save(Relay(RelayId(2), 7));
+    context_->registerComponent(nvs_relay_repository);
 
     MqttRelayPublisher* rpublisher = new MqttRelayPublisher(mqtt);
     context_->registerComponent(rpublisher);
 
-    RelayService* rservice = new RelayService(relaydb, rpublisher);
+    RelayService* rservice = new RelayService(nvs_relay_repository, rpublisher);
     context_->registerComponent(rservice);
 
     auto rcontroller = std::make_shared<MqttRelayController>(rservice);
@@ -99,9 +100,9 @@ void InitState::onEnter() {
     auto dns_server = new DnsServer();
     context_->registerComponent(dns_server);
 
-    auto conf_controller = new ConfigController(http_server, configs);
-    conf_controller->registerHandlers();
-    context_->registerComponent(conf_controller);
+    auto cfg_controller = new ConfigController(http_server, cfg_service);
+    cfg_controller->registerHandlers();
+    context_->registerComponent(cfg_controller);
 
     auto mqtt_rc_publisher = new MqttRcPublisher(mqtt);
     context_->registerComponent(mqtt_rc_publisher);

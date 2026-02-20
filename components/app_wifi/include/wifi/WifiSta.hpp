@@ -19,7 +19,7 @@ class WifiSta
         WifiSta();
         ~WifiSta();
 
-        void configure(WifiConfig config);
+        void configure(std::unique_ptr<WifiConfig> config);
 
         std::expected<void, std::string> start();
         std::expected<void, std::string> stop();
@@ -27,7 +27,7 @@ class WifiSta
         bool isUp() const;
 
     private:
-        WifiConfig config_;
+        std::unique_ptr<WifiConfig> config_;
         bool is_up_;
         esp_netif_t *eps_netif_;
         EventGroupHandle_t event_group_;

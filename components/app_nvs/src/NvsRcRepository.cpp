@@ -12,7 +12,7 @@ NvsRcRepository::NvsRcRepository(Nvs* nvs)
 
 std::expected<Rc, Error<RcRepositoryError>> NvsRcRepository::getById(RcId id) const
 {
-    auto nvs_id = getNvsIdByRcId(id);
+    auto nvs_id = getNvsKeyByRcId(id);
 
     std::vector<std::uint8_t> buf(Rc::serializationSize());
 
@@ -39,9 +39,9 @@ std::expected<std::vector<Rc>, Error<RcRepositoryError>> NvsRcRepository::getAll
     return make_error(RcRepositoryError::Other, "not implemented");
 }
 
-std::expected<void, Error<RcRepositoryError>> NvsRcRepository::save(Rc rc)
+std::expected<void, Error<RcRepositoryError>> NvsRcRepository::save(Rc rc) const
 {
-    auto nvs_id = getNvsIdByRcId(rc.getId());
+    auto nvs_id = getNvsKeyByRcId(rc.getId());
 
     auto data = rc.serialize();
 
@@ -54,15 +54,14 @@ std::expected<void, Error<RcRepositoryError>> NvsRcRepository::save(Rc rc)
     return {};
 }
 
-std::expected<void, Error<RcRepositoryError>> NvsRcRepository::reset()
+std::expected<void, Error<RcRepositoryError>> NvsRcRepository::reset() const
 {
     return make_error(RcRepositoryError::Other, "not implemented");
 }
 
-std::string NvsRcRepository::getNvsIdByRcId(RcId id) const
+std::string NvsRcRepository::getNvsKeyByRcId(RcId id) const
 {
-    auto repository_id_str = std::string(getRepositroyId());
     auto rc_id_str = id.asAscii85();
 
-    return std::format("{}_{}", repository_id_str, rc_id_str);
+    return std::format("{}{}", NVS_KEY_PREFIX, rc_id_str);
 }

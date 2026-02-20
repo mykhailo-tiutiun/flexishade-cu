@@ -10,6 +10,8 @@
 #include <string>
 #include <string_view>
 
+#define NVS_KEY_PREFIX "rc_"
+
 class NvsRcRepository : public RcRepository {
     public:
         NvsRcRepository(Nvs* nvs);
@@ -17,18 +19,13 @@ class NvsRcRepository : public RcRepository {
         std::expected<Rc, Error<RcRepositoryError>> getById(RcId id) const override;
         std::expected<std::vector<Rc>, Error<RcRepositoryError>> getAll() const override;
 
-        std::expected<void, Error<RcRepositoryError>> save(Rc rc) override;
-        std::expected<void, Error<RcRepositoryError>> reset() override;
-
-        std::string_view getRepositroyId() const override
-        {
-            return "rc";
-        }
+        std::expected<void, Error<RcRepositoryError>> save(Rc rc) const override;
+        std::expected<void, Error<RcRepositoryError>> reset() const override;
 
     private:
         Nvs* nvs_;
 
-        std::string getNvsIdByRcId(RcId id) const;
+        std::string getNvsKeyByRcId(RcId id) const;
 };
 
 #endif

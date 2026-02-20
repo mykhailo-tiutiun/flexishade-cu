@@ -2,7 +2,6 @@
 #define MQTT_CLIENT_HPP
 
 #include "mqtt/MqttController.hpp"
-#include "config/MqttConfig.hpp"
 #include <expected>
 #include <functional>
 #include <memory>
@@ -23,8 +22,6 @@ class MqttClient {
         MqttClient();
         ~MqttClient();
 
-        void configure(MqttConfig config);
-
         std::expected<void, std::string> start();
         std::expected<void, std::string> stop();
 
@@ -35,7 +32,6 @@ class MqttClient {
         bool isUp() const;
 
     private:
-        MqttConfig config_;
         bool is_up_;
         esp_mqtt_client_handle_t mqtt_client_;
         std::binary_semaphore start_semaphore_;
