@@ -1,5 +1,5 @@
-#ifndef WIFI_CONFIG_HPP
-#define WIFI_CONFIG_HPP
+#ifndef WIFI_STA_CONFIG_HPP
+#define WIFI_STA_CONFIG_HPP
 
 #include "cJSON.h"
 #include "config/Config.hpp"
@@ -11,12 +11,12 @@
 #include <vector>
 #include <memory>
 
-class WifiConfig : public Config
+class WifiStaConfig : public Config
 {
     public:
-        WifiConfig();
-        WifiConfig(std::string ssid, std::string psk);
-        WifiConfig(const WifiConfig&) = default;
+        WifiStaConfig();
+        WifiStaConfig(std::string ssid, std::string psk);
+        WifiStaConfig(const WifiStaConfig&) = default;
 
         static constexpr std::size_t WIFI_SSID_LENGTH = 32;
         static constexpr std::size_t WIFI_PSK_LENGTH  = 63;

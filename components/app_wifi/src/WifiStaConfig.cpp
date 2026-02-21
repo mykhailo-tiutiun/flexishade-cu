@@ -1,4 +1,4 @@
-#include "config/WifiConfig.hpp"
+#include "wifi/WifiStaConfig.hpp"
 #include <memory>
 #include <string>
 #include <utility>
@@ -8,17 +8,17 @@
 #include "misc/Error.hpp"
 #include "misc/Serializable.hpp"
 
-WifiConfig::WifiConfig()
+WifiStaConfig::WifiStaConfig()
 : ssid_("")
 , psk_("")
 {}
 
-WifiConfig::WifiConfig(std::string ssid, std::string psk)
+WifiStaConfig::WifiStaConfig(std::string ssid, std::string psk)
 : ssid_(ssid)
 , psk_(psk)
 {}
 
-cJSON* WifiConfig::getJson() const
+cJSON* WifiStaConfig::getJson() const
 {
     cJSON* json = cJSON_CreateObject();
 
@@ -28,7 +28,7 @@ cJSON* WifiConfig::getJson() const
     return json;
 }
 
-std::expected<void, ConfigError> WifiConfig::applyJson(const cJSON* json)
+std::expected<void, ConfigError> WifiStaConfig::applyJson(const cJSON* json)
 {
     cJSON* item;
 
@@ -47,17 +47,17 @@ std::expected<void, ConfigError> WifiConfig::applyJson(const cJSON* json)
     return {};
 }
 
-const std::string& WifiConfig::getSSID() const
+const std::string& WifiStaConfig::getSSID() const
 {
     return ssid_;
 }
 
-const std::string& WifiConfig::getPsk() const
+const std::string& WifiStaConfig::getPsk() const
 {
     return psk_;
 }
 
-std::vector<std::uint8_t> WifiConfig::serialize() const
+std::vector<std::uint8_t> WifiStaConfig::serialize() const
 {
     std::vector<std::uint8_t> buf;
     buf.reserve(serializationSize());
@@ -71,10 +71,10 @@ std::vector<std::uint8_t> WifiConfig::serialize() const
     return buf;
 }
 
-std::expected<void, Error<SerializationError>> WifiConfig::desirialize(const std::vector<std::uint8_t>& data)
+std::expected<void, Error<SerializationError>> WifiStaConfig::desirialize(const std::vector<std::uint8_t>& data)
 {
     if (data.size() != serializationSize()) {
-        return make_error(SerializationError::InvalidDataLength, "WifiConfig desirialization: invalid data length");
+        return make_error(SerializationError::InvalidDataLength, "WifiStaConfig desirialization: invalid data length");
     }
 
     std::size_t off = 0;
@@ -92,7 +92,7 @@ std::expected<void, Error<SerializationError>> WifiConfig::desirialize(const std
     return {};
 }
 
-std::unique_ptr<Config> WifiConfig::clone() const
+std::unique_ptr<Config> WifiStaConfig::clone() const
 {
-    return std::make_unique<WifiConfig>(*this);
+    return std::make_unique<WifiStaConfig>(*this);
 }

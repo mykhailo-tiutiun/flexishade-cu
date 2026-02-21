@@ -1,4 +1,5 @@
 #include "wifi/WifiSta.hpp"
+#include "wifi/WifiStaConfig.hpp"
 #include "esp_event.h"
 #include "esp_event_base.h"
 #include "esp_log.h"
@@ -17,7 +18,7 @@
 
 #define ERROR_CHECK(exp, msg) if (exp != ESP_OK) { return std::unexpected(msg); }
 
-static const char *TAG = "wifi sta";
+static const char *TAG = "wifi_sta";
 
 void WifiSta::event_handler(void* arg, esp_event_base_t event_base,
                                 int32_t event_id, void* event_data)
@@ -35,10 +36,9 @@ void WifiSta::event_handler(void* arg, esp_event_base_t event_base,
     }
 }
 
-WifiSta::WifiSta() : is_up_(false)
-{
-
-}
+WifiSta::WifiSta()
+: is_up_(false)
+{}
 
 WifiSta::~WifiSta()
 {
@@ -47,7 +47,7 @@ WifiSta::~WifiSta()
     }
 }
 
-void WifiSta::configure(std::unique_ptr<WifiConfig> config)
+void WifiSta::configure(std::unique_ptr<WifiStaConfig> config)
 {
     config_ = std::move(config);
 }

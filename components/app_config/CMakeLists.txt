@@ -1,7 +1,6 @@
 idf_component_register(
     SRCS
         "src/ConfigService.cpp"
-        "src/WifiConfig.cpp"
         "src/ConfigController.cpp"
         "src/IndexPage.cpp"
     INCLUDE_DIRS

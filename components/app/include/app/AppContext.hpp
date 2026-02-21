@@ -8,7 +8,6 @@
 #include "app/AppState.hpp"
 #include "app/TaskQueue.hpp"
 
-
 class Component
 {
     public:

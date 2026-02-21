@@ -5,20 +5,19 @@
 #include "app/ConfigButton.hpp"
 
 #include "config/ConfigController.hpp"
-#include "config/WifiConfig.hpp"
 #include "esp_event.h"
 #include "esp_netif.h"
 #include "esp_pthread.h"
-#include "esp_wifi.h"
+
 #include "nvs/Nvs.hpp"
 #include "nvs/NvsRcRepository.hpp"
 #include "nvs/NvsRelayRepository.hpp"
 #include "nvs/NvsConfigRepository.hpp"
 #include "rc/MqttRcController.hpp"
 #include "rc/MqttRcPublisher.hpp"
-#include "rc/RcRepository.hpp"
 #include "rc/RcService.hpp"
 #include "wifi/WifiSta.hpp"
+#include "wifi/WifiStaConfig.hpp"
 #include "wifi/WifiAp.hpp"
 #include "nvs_flash.h"
 
@@ -65,7 +64,7 @@ void InitState::onEnter() {
     context_->registerComponent(nvs);
 
     auto cfg_repository = new NvsConfigRepository(nvs);
-    cfg_repository->registerConfig(std::make_unique<WifiConfig>());
+    cfg_repository->registerConfig(std::make_unique<WifiStaConfig>());
     context_->registerComponent(cfg_repository);
 
     auto cfg_service = new ConfigService(cfg_repository);

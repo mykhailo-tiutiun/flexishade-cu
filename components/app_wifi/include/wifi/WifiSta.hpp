@@ -1,8 +1,6 @@
 #ifndef WIFI_STA_HPP
 #define WIFI_STA_HPP
 
-#define WIFI_STA_SSID "RaspAP"
-#define WIFI_STA_PASS "45834110"
 #define WIFI_STA_WIFI_CHANNEL 1
 #define WIFI_STA_MAXIMUM_RETRY 3
 
@@ -11,7 +9,7 @@
 #include <expected>
 #include <memory>
 
-#include "config/WifiConfig.hpp"
+#include "wifi/WifiStaConfig.hpp"
 
 class WifiSta
 {
@@ -19,7 +17,7 @@ class WifiSta
         WifiSta();
         ~WifiSta();
 
-        void configure(std::unique_ptr<WifiConfig> config);
+        void configure(std::unique_ptr<WifiStaConfig> config);
 
         std::expected<void, std::string> start();
         std::expected<void, std::string> stop();
@@ -27,7 +25,7 @@ class WifiSta
         bool isUp() const;
 
     private:
-        std::unique_ptr<WifiConfig> config_;
+        std::unique_ptr<WifiStaConfig> config_;
         bool is_up_;
         esp_netif_t *eps_netif_;
         EventGroupHandle_t event_group_;

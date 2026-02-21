@@ -22,7 +22,7 @@ static const char* TAG = "normal_state";
 void NormalState::onEnter()
 {
     auto configs = context_->tryGetComponent<ConfigService>().value();
-    auto wifi_config = configs->getConfig<WifiConfig>("wifi");
+    auto wifi_config = configs->getConfig<WifiStaConfig>("wifi");
 
     if (!wifi_config) {
         ESP_LOGE(TAG, "Error: wifi config not found"); \
